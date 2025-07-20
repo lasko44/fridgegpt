@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Stripe\PaymentMethod;
 
 class SubscriptionController extends Controller
 {
@@ -28,7 +29,21 @@ class SubscriptionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $user = $request->user();
+        $paymentMethod = $request->input('payment_method');
+
+        if (!$user->hasStripeId()) {
+            $user->createAsStripeCustomer();
+        }
+
+        // Attach & set default
+        $user->updateDefaultPaymentMethod($paymentMethod);
+
+        // Create subscription
+        $user->newSubscription('default', 'prod_SiOpc3dzcfg9ly') // Replace with your real Stripe Price ID
+        ->create($paymentMethod);
+
+        return response()->json(['message' => 'Subscription created successfully']);
     }
 
     /**

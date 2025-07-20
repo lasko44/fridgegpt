@@ -2,6 +2,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import MyLayout from '../layouts/MyLayout.vue';
 import { loadStripe, Stripe, StripePaymentElement, StripePaymentRequestButtonElement } from '@stripe/stripe-js';
+import { useForm } from '@inertiajs/vue3';
 
 const stripe = ref<Stripe | null>(null);
 const elements = ref<any>(null);
@@ -13,9 +14,12 @@ const prButtonMount = ref<HTMLDivElement | null>(null);
 const paymentRequest = ref<any>(null);
 const showPrButton = ref(false);
 
-const error = ref('');
-const loading = ref(false);
 const clientSecret = ref('');
+const error = ref('');
+
+const form = useForm({
+    payment_method: '',
+});
 
 async function fetchClientSecret() {
     try {
@@ -24,9 +28,10 @@ async function fetchClientSecret() {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                'Accept': 'application/json',
             },
             body: JSON.stringify({ amount: 1000 }),
+            credentials: 'same-origin',
         });
         if (!response.ok) throw new Error('Network error');
         const data = await response.json();
@@ -82,14 +87,12 @@ onBeforeUnmount(() => {
 });
 
 async function submitSubscription() {
-    loading.value = true;
     error.value = '';
     if (!stripe.value || !elements.value) {
         error.value = 'Stripe not loaded.';
-        loading.value = false;
         return;
     }
-    const { error: stripeError } = await stripe.value.confirmPayment({
+    const { paymentIntent, error: stripeError } = await stripe.value.confirmPayment({
         elements: elements.value,
         confirmParams: {
             return_url: window.location.origin + '/subscription/complete',
@@ -98,10 +101,18 @@ async function submitSubscription() {
     });
     if (stripeError) {
         error.value = stripeError.message || 'Payment error.';
-        loading.value = false;
         return;
     }
-    loading.value = false;
+    form.payment_method = paymentIntent.payment_method;
+    form.post('/subscription', {
+        onError: (errors) => {
+            error.value = errors.payment_method || 'Failed to create subscription.';
+        },
+        onSuccess: () => {
+            alert('Subscription created!');
+        },
+        preserveScroll: true,
+    });
 }
 </script>
 
@@ -109,7 +120,12 @@ async function submitSubscription() {
     <MyLayout>
         <main>
             <section class="mx-auto my-10 w-1/2 rounded bg-white p-8 text-gray-900 shadow" aria-labelledby="subscription-heading">
-                <h1 id="subscription-heading" class="mb-6 text-center text-3xl font-bold">Subscribe</h1>
+                <h1 id="subscription-heading" class="mb-4 text-center text-3xl font-bold">Subscribe</h1>
+                <div class="mb-6 flex justify-center">
+                    <div class="rounded-full bg-gradient-to-r from-teal-500 to-blue-500 px-6 py-2 text-2xl font-extrabold text-yellow-300 shadow-lg">
+                        $3.99<span class="ml-1 text-white text-base font-semibold">/month</span>
+                    </div>
+                </div>
                 <form @submit.prevent="submitSubscription" class="flex flex-col gap-4" role="form">
                     <div>
                         <label class="mb-1 block font-medium text-gray-700">Payment Details</label>
@@ -117,10 +133,10 @@ async function submitSubscription() {
                     </div>
                     <button
                         type="submit"
-                        :disabled="loading"
+                        :disabled="form.processing"
                         class="rounded-xl bg-gradient-to-r from-teal-500 to-blue-500 px-4 py-2 text-lg font-bold text-white shadow transition hover:cursor-pointer hover:from-teal-600 hover:to-blue-600 focus:ring-2 focus:ring-blue-700 focus:outline-none"
                     >
-                        {{ loading ? 'Processing...' : 'Start 1 Week Free Trial' }}
+                        {{ form.processing ? 'Processing...' : 'Start 1 Week Free Trial' }}
                     </button>
                     <p v-if="error" class="mt-2 text-center text-red-600">{{ error }}</p>
                 </form>

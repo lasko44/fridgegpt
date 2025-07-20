@@ -12,19 +12,17 @@ class StripeController extends Controller
 {
     public function store(Request $request): JsonResponse
     {
-        Stripe::setApiKey(env('STRIPE_SECRET'));
+        $user = $request->user();
+        $amount = $request->input('amount', 1000);
 
-        $amount = $request->input('amount',1000);
+        if (!$user->hasStripeId()) {
+            $user->createAsStripeCustomer();
+        }
 
-        $paymentIntent = PaymentIntent::create([
-            'amount' => $amount,
-            'currency' => 'usd',
-            'automatic_payment_methods' => ['enabled' => true],
-        ]);
+        $paymentIntent = $user->createSetupIntent();
 
         return response()->json([
             'clientSecret' => $paymentIntent->client_secret,
         ]);
-
     }
 }

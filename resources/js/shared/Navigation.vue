@@ -4,7 +4,7 @@ import { computed } from 'vue';
 
 const page = usePage();
 const loggedIn = computed(() => !!page.props.auth?.user);
-const isPremium = computed(() => page.props.auth?.user?.is_premium);
+const isPremium = computed(() => page.props.auth?.user?.subscribed);
 
 function logout() {
     router.post('/logout');
@@ -28,7 +28,7 @@ function logout() {
                 </template>
                 <template v-else>
                     <InertiaLink href="/account" class="text-lg font-semibold text-white transition hover:cursor-pointer hover:text-cyan-200">
-                        Account Settings
+                        Account
                     </InertiaLink>
                     <button
                         @click="logout"
@@ -40,13 +40,16 @@ function logout() {
                 </template>
             </div>
             <div>
-                <template v-if="!loggedIn || !isPremium">
+                <template v-if="!loggedIn">
                     <InertiaLink
                         href="/subscription/create"
                         class="ml-6 rounded-full bg-yellow-300 px-5 py-2 font-bold text-teal-700 drop-shadow transition hover:bg-yellow-400 focus:ring-2 focus:ring-white focus:outline-none"
                     >
                         Go Premium – First Week Free
                     </InertiaLink>
+                </template>
+                <template v-else>
+                    <span class="ml-6 rounded-full bg-yellow-300  px-5 py-2 font-bold text-teal-700 drop-shadow transition"> Premium </span>
                 </template>
             </div>
         </nav>

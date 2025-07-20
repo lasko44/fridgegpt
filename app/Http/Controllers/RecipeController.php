@@ -8,6 +8,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class RecipeController extends Controller
 {
@@ -29,7 +30,6 @@ class RecipeController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     * @throws ConnectionException
      */
    public function store(Request $request): object
    {
@@ -39,7 +39,7 @@ class RecipeController extends Controller
            $seconds = $rateLimiter->availableIn($request->ip());
            return response()->json([
                'error' => "Too many requests. Please wait {$seconds} seconds before trying again."
-           ], Response::HTTP_TOO_MANY_REQUESTS);
+           ], ResponseAlias::HTTP_TOO_MANY_REQUESTS);
        }
        $rateLimiter->hit($request->ip());
 

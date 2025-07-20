@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue';
-import MyLayout from '../layouts/MyLayout.vue';
+import { useForm, usePage } from '@inertiajs/vue3';
 import { loadStripe, Stripe, StripePaymentElement, StripePaymentRequestButtonElement } from '@stripe/stripe-js';
-import { useForm } from '@inertiajs/vue3';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
+import MyLayout from '../layouts/MyLayout.vue';
+import Subscribed from '../shared/Subscribed.vue';
+
+const page = usePage();
 
 const stripe = ref<Stripe | null>(null);
 const elements = ref<any>(null);
@@ -21,36 +24,44 @@ const form = useForm({
     payment_method: '',
 });
 
-async function fetchClientSecret() {
+const isSubscribed = !!page.props.auth?.user?.subscribed; // Adjust if needed
+
+// Fetch SetupIntent client secret for subscriptions
+async function fetchSetupIntentSecret() {
     try {
-        const response = await fetch('/api/create-payment-intent', {
+        const response = await fetch('/api/create-setup-intent', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json',
             },
-            body: JSON.stringify({ amount: 1000 }),
+            body: JSON.stringify({
+                user: page.props.auth?.user?.id,
+            }),
             credentials: 'same-origin',
         });
         if (!response.ok) throw new Error('Network error');
         const data = await response.json();
         clientSecret.value = data.clientSecret;
     } catch {
-        error.value = 'Failed to fetch client secret.';
+        error.value = 'Failed to fetch setup intent secret.';
     }
 }
 
 onMounted(async () => {
-    await fetchClientSecret();
+    if (isSubscribed) return;
+    await fetchSetupIntentSecret();
     if (!clientSecret.value) return;
-    stripe.value = await loadStripe('pk_test_9aKCqOqHF5WbutLIVV0MZNqG00KMDpU2dh');
-    elements.value = stripe.value!.elements({ clientSecret: clientSecret.value });
+    stripe.value = await loadStripe('pk_test_51RmxzdPDvw13epAC8BODuxy0o8MOpgck8PGaW4OsnC38jhl22aYfhNQXq4myubJjymme1ZZiBXUizSqAjWdagSsj00n8a4b6Ac');
+    elements.value = stripe.value?.elements({ clientSecret: clientSecret.value });
 
-    paymentElement.value = elements.value.create('payment');
-    paymentElement.value.mount(paymentElementMount.value!);
+    if (elements.value && paymentElementMount.value) {
+        paymentElement.value = elements.value.create('payment');
+        paymentElement.value.mount(paymentElementMount.value);
+    }
 
-    paymentRequest.value = stripe.value!.paymentRequest({
+    paymentRequest.value = stripe.value?.paymentRequest({
         country: 'US',
         currency: 'usd',
         total: {
@@ -61,20 +72,22 @@ onMounted(async () => {
         requestPayerEmail: true,
     });
 
-    paymentRequest.value.canMakePayment().then((result: any) => {
+    paymentRequest.value?.canMakePayment().then((result: any) => {
         if (result) {
             showPrButton.value = true;
-            prButton.value = elements.value.create('paymentRequestButton', {
-                paymentRequest: paymentRequest.value,
-                style: {
-                    paymentRequestButton: {
-                        type: 'default',
-                        theme: 'dark',
-                        height: '44px',
+            if (elements.value && prButtonMount.value) {
+                prButton.value = elements.value.create('paymentRequestButton', {
+                    paymentRequest: paymentRequest.value,
+                    style: {
+                        paymentRequestButton: {
+                            type: 'default',
+                            theme: 'dark',
+                            height: '44px',
+                        },
                     },
-                },
-            });
-            prButton.value.mount(prButtonMount.value!);
+                });
+                prButton.value.mount(prButtonMount.value);
+            }
         } else {
             showPrButton.value = false;
         }
@@ -86,24 +99,25 @@ onBeforeUnmount(() => {
     if (prButton.value) prButton.value.unmount();
 });
 
+// Use confirmSetup for subscriptions
 async function submitSubscription() {
     error.value = '';
     if (!stripe.value || !elements.value) {
         error.value = 'Stripe not loaded.';
         return;
     }
-    const { paymentIntent, error: stripeError } = await stripe.value.confirmPayment({
+    const { setupIntent, error: setupError } = await stripe.value.confirmSetup({
         elements: elements.value,
         confirmParams: {
-            return_url: window.location.origin + '/subscription/complete',
+            return_url: window.location.href,
         },
         redirect: 'if_required',
     });
-    if (stripeError) {
-        error.value = stripeError.message || 'Payment error.';
+    if (setupError) {
+        error.value = setupError.message || 'Payment error.';
         return;
     }
-    form.payment_method = paymentIntent.payment_method;
+    form.payment_method = setupIntent?.payment_method ?? '';
     form.post('/subscription', {
         onError: (errors) => {
             error.value = errors.payment_method || 'Failed to create subscription.';
@@ -119,11 +133,14 @@ async function submitSubscription() {
 <template>
     <MyLayout>
         <main>
-            <section class="mx-auto my-10 w-1/2 rounded bg-white p-8 text-gray-900 shadow" aria-labelledby="subscription-heading">
+            <section v-if="isSubscribed">
+                <Subscribed />
+            </section>
+            <section v-else class="mx-auto my-10 w-1/2 rounded bg-white p-8 text-gray-900 shadow" aria-labelledby="subscription-heading">
                 <h1 id="subscription-heading" class="mb-4 text-center text-3xl font-bold">Subscribe</h1>
                 <div class="mb-6 flex justify-center">
                     <div class="rounded-full bg-gradient-to-r from-teal-500 to-blue-500 px-6 py-2 text-2xl font-extrabold text-yellow-300 shadow-lg">
-                        $3.99<span class="ml-1 text-white text-base font-semibold">/month</span>
+                        $3.99<span class="ml-1 text-base font-semibold text-white">/month</span>
                     </div>
                 </div>
                 <form @submit.prevent="submitSubscription" class="flex flex-col gap-4" role="form">

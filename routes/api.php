@@ -5,6 +5,5 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\StripeController;
 
 //Stripe payment routes
-Route::post('create-payment-intent', [StripeController::class, 'store'])
-    ->name('stripe.create-payment-intent')
-    ->middleware('auth');
+Route::post('create-setup-intent', [StripeController::class, 'store'])
+    ->name('stripe.create-setup-intent');

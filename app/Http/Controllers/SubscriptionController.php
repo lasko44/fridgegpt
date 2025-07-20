@@ -19,7 +19,7 @@ class SubscriptionController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): \Inertia\Response
     {
         return Inertia::render('Subscription');
     }
@@ -27,23 +27,26 @@ class SubscriptionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = $request->user();
         $paymentMethod = $request->input('payment_method');
 
-        if (!$user->hasStripeId()) {
-            $user->createAsStripeCustomer();
-        }
+        $user->createOrGetStripeCustomer();
 
-        // Attach & set default
+        // Attach the payment method to the customer
+        $user->addPaymentMethod($paymentMethod);
+
+        // Set as default
         $user->updateDefaultPaymentMethod($paymentMethod);
 
         // Create subscription
-        $user->newSubscription('default', 'prod_SiOpc3dzcfg9ly') // Replace with your real Stripe Price ID
-        ->create($paymentMethod);
+        $user->newSubscription('default', 'price_1Rmy2JPDvw13epACAiqCdSJU')
+            ->trialDays(7)
+            ->create($paymentMethod);
 
-        return response()->json(['message' => 'Subscription created successfully']);
+        return Inertia::location(route('home'))
+            ->with('success', 'Subscription created successfully!');
     }
 
     /**

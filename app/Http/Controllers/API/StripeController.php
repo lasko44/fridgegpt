@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Http\Controllers\API;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Stripe\PaymentIntent;
+use Stripe\Stripe;
+
+class StripeController extends Controller
+{
+    public function store(Request $request): JsonResponse
+    {
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        $amount = $request->input('amount',1000);
+
+        $paymentIntent = PaymentIntent::create([
+            'amount' => $amount,
+            'currency' => 'usd',
+            'automatic_payment_methods' => ['enabled' => true],
+        ]);
+
+        return response()->json([
+            'clientSecret' => $paymentIntent->client_secret,
+        ]);
+
+    }
+}

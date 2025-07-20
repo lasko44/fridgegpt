@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class User extends Authenticatable
 {
@@ -25,6 +26,7 @@ class User extends Authenticatable
         'password',
     ];
 
+    protected $appends = ['subscribed'];
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -47,6 +49,16 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+   //Attributes
+    protected function subscribed(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->subscribed('default'),
+        );
+    }
+
+    //Relationships
 
     public function recipe(): HasMany
     {

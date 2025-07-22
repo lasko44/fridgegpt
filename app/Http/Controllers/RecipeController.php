@@ -41,11 +41,9 @@ class RecipeController extends Controller
         if ($isGuest) {
             $cacheKey = 'guest_recipes_' . $request->ip();
             $recipes = Cache::get($cacheKey, []);
-            if (count($recipes) >= 3) {
-                return response()->json([
-                    'error' => 'Daily limit reached. Please try again tomorrow.'
-                ], ResponseAlias::HTTP_TOO_MANY_REQUESTS);
-            }
+           if (count($recipes) >= 3) {
+               return redirect()->route('home')->withErrors(['guest_limit' => 'Daily limit reached. Please try again tomorrow.']);
+           }
 
             $ingredients = $request->input('ingredients');
             $recipe = RecipeUtil::generateRecipe($ingredients)->get();
@@ -59,7 +57,7 @@ class RecipeController extends Controller
         $recipe = RecipeUtil::generateRecipe($ingredients)->get();
 
 
-        return redirect()->route('home')->with('recipe', '$recipe');
+        return redirect()->route('home')->with('recipe', $recipe);
     }
 
     /**

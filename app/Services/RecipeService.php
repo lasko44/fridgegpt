@@ -94,7 +94,7 @@ class RecipeService
      */
     private function parse(): array
     {
-        $recipeText = self::TEST;
+        $recipeText = $this->recipe;
         // Extract title
         preg_match('/^(.*?):/', $recipeText, $titleMatch);
         $title = isset($titleMatch[1]) ? trim($titleMatch[1]) : '';

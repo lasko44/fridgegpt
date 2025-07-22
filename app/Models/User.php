@@ -26,7 +26,7 @@ class User extends Authenticatable
         'password',
     ];
 
-    protected $appends = ['subscribed'];
+    protected $appends = ['is_subscribed'];
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -51,10 +51,10 @@ class User extends Authenticatable
     }
 
    //Attributes
-    protected function subscribed(): Attribute
+    protected function isSubscribed(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->subscribed('default'),
+            get: fn () => $this->subscribed() && $this->subscriptions()->count() > 0,
         );
     }
 

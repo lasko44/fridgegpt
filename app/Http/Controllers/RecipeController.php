@@ -38,7 +38,8 @@ class RecipeController extends Controller
         $user = $request->user();
         $isGuest = !$user;
 
-        if ($isGuest) {
+        if ($isGuest || !$user->is_subscribed ) {
+
             $cacheKey = 'guest_recipes_' . $request->ip();
             $recipes = Cache::get($cacheKey, []);
            if (count($recipes) >= 3) {

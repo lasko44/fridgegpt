@@ -27,9 +27,25 @@ watch(() => props.recipe, async (val) => {
     }
 })
 
-// Check for guest_limit error
-const showSubscribeModal = computed(() => !!page.props?.errors?.guest_limit)
+const showModal = ref(false)
 const isLoggedIn = computed(() => !!page.props?.auth?.user)
+
+// Watch for guest_limit error and show/hide modal
+watch(
+    () => page.props?.errors?.guest_limit,
+    (val) => {
+        showModal.value = !!val
+    },
+    { immediate: true }
+)
+
+// Clear guest_limit error when modal closes
+function handleModalClose() {
+    showModal.value = false
+    if (page.props?.errors?.guest_limit) {
+        page.props.errors.guest_limit = null
+    }
+}
 </script>
 
 <template>
@@ -59,6 +75,6 @@ const isLoggedIn = computed(() => !!page.props?.auth?.user)
                 <CtaCard />
             </div>
         </main>
-        <SubscribeModal v-if="showSubscribeModal" :is-logged-in="isLoggedIn" />
+        <SubscribeModal v-if="showModal" :is-logged-in="isLoggedIn" @close="handleModalClose" />
     </MyLayout>
 </template>

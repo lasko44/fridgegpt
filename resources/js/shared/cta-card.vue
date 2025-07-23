@@ -4,7 +4,7 @@ import { Link } from '@inertiajs/vue3';
 
 <template>
     <div
-        class="mx-auto flex max-w-sm flex-col items-center rounded-xl bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 p-8 text-white shadow-lg"
+        class="mx-auto flex w-lg flex-col items-center rounded-xl bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 p-8 text-white shadow-lg"
     >
 <!--        <img src="/images/logo.webp" alt="Logo" class="mb-4 h-24 w-24 drop-shadow-lg" />-->
         <h2 class="mb-2 text-3xl font-extrabold drop-shadow-lg md:text-4xl">Go Premium</h2>

@@ -50,7 +50,7 @@ class User extends Authenticatable
         ];
     }
 
-   //Attributes
+   //region Attributes
     protected function isSubscribed(): Attribute
     {
         return Attribute::make(
@@ -58,10 +58,34 @@ class User extends Authenticatable
         );
     }
 
-    //Relationships
+    //endregion
+
+    //region Relationships
 
     public function recipe(): HasMany
     {
         return $this->hasMany(Recipe::class);
     }
+
+    //endregion
+
+    //region Functions
+    public function recipeCount(): int
+    {
+        return $this->recipe()->count();
+    }
+
+    public function deleteOldestRecipe(): void
+    {
+        $this->recipe()->oldest()->first()?->delete();
+    }
+
+    public function dayRecipeCount(): int
+    {
+        // Assuming you want to count recipes created today
+        return $this->recipe()
+            ->whereDate('created_at', now()->toDateString())
+            ->count();
+    }
+    //endregion
 }

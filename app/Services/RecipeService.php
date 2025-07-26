@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class RecipeService
@@ -14,7 +16,6 @@ class RecipeService
 
     private const INGREDIENTS = 'Ingredients';
     private const INSTRUCTIONS = 'Instructions';
-    private const TEST = "Greek Chicken Sandwich:\n\nIngredients:\n- 2 slices of bread\n- Handful of spinach\n- Handful of olives, sliced\n- Sliced cooked chicken breast\n- Feta cheese (optional)\n- Hummus (optional)\n\nInstructions:\n1. Toast the bread slices in a toaster or on a skillet until golden brown.\n2. Spread a thin layer of hummus on one side of each bread slice.\n3. Layer the cooked chicken breast, spinach, olives, and feta cheese on one bread slice.\n4. Place the second bread slice on top to create a sandwich.\n5. Cut the sandwich in half and serve. Enjoy!";
 
     /**
      * Get the generated recipe.
@@ -34,7 +35,7 @@ class RecipeService
         ])->post('https://api.openai.com/v1/chat/completions', [
             'model' => 'gpt-3.5-turbo',
             'messages' => [
-                ['role' => 'user', 'content' => "I have these ingredients: $ingredientList. Give me a recipe."]
+                ['role' => 'user', 'content' => "I have these ingredients: $ingredientList. Give me a recipe. Spit the recipe into title, ingredients, and instructions. Use the following format:\n\nTitle: [Recipe Title]\n\nIngredients:\n [Ingredient 1]\n [Ingredient 2]\n\nInstructions:\n1. [Step 1]\n2. [Step 2]\n3. [Step 3]"],
             ],
         ]);
 
@@ -80,7 +81,6 @@ class RecipeService
         return Arr::get($this->parsedRecipe, 'ingredients', []);
     }
 
-
     /**
      * @return array
      */
@@ -95,22 +95,22 @@ class RecipeService
     private function parse(): array
     {
         $recipeText = $this->recipe;
+
         // Extract title
-        preg_match('/^(.*?):/', $recipeText, $titleMatch);
+        preg_match('/^Title:\s*(.+)$/m', $recipeText, $titleMatch);
         $title = isset($titleMatch[1]) ? trim($titleMatch[1]) : '';
 
         // Extract ingredients
-        preg_match('/Ingredients:\n(.*?)\n\nInstructions:/s', $recipeText, $ingredientsMatch);
+        preg_match('/Ingredients:\s*\n((?:- .*\n?)*)/m', $recipeText, $ingredientsMatch);
         $ingredientsRaw = $ingredientsMatch[1] ?? '';
         $ingredients = array_map(function ($line) {
             return trim(ltrim($line, "- "));
         }, array_filter(explode("\n", $ingredientsRaw)));
 
         // Extract instructions
-        preg_match('/Instructions:\n(.*)$/s', $recipeText, $instructionsMatch);
+        preg_match('/Instructions:\s*\n((?:\d+\..*\n?)*)/m', $recipeText, $instructionsMatch);
         $instructionsRaw = $instructionsMatch[1] ?? '';
         $instructions = array_map(function ($line) {
-            // Remove numbering and trim
             return trim(preg_replace('/^\d+\.\s*/', '', $line));
         }, array_filter(explode("\n", $instructionsRaw)));
 
@@ -119,5 +119,33 @@ class RecipeService
             'ingredients' => $ingredients,
             'instructions' => $instructions,
         ];
+    }
+
+    /**
+     * Get the latest recipes for a user or guest.
+     *
+     * @param User|null $user
+     * @param string|null $ip
+     * @return array
+     */
+    public function getRecipes(User $user = null, string $ip = null): array
+    {
+        $cacheKey = $ip ? 'guest_recipes_'.$ip : null;
+        $recipes = null;
+
+        //Guest user recipes
+        if(!$user && $cacheKey) {
+            $recipes = Cache::get($cacheKey, null);
+        }
+        //Standard user recipes
+        if($user && !$user->is_subscribed) {
+            $recipes = $user->recipe()->latest()->take(5)->get() ?? null;
+        }
+        //Premium user recipes
+        if($user && $user->is_subscribed) {
+            $recipes = $user->recipe()->latest()->paginate(5) ?? null;
+        }
+
+        return $recipes ?: [];
     }
 }

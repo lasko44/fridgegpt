@@ -4,16 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Facades\RecipeUtil;
 use App\Models\Recipe;
-use App\Services\RecipeRateLimiter;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
-use Symfony\Component\HttpFoundation\Response as ResponseAlias;
+use Illuminate\Support\Str;
 
 class RecipeController extends Controller
 {
+
+    private const GUEST_LIMIT_ERROR = 'Daily limit reached. Please try again tomorrow.';
+    private const SUBSCRIPTION_LIMIT_ERROR = 'You have reached your daily recipe limit. 
+    Please subscribe to get more recipes.';
+
     /**
      * Display a listing of the resource.
      */
@@ -37,28 +38,68 @@ class RecipeController extends Controller
     {
         $user = $request->user();
         $isGuest = !$user;
+        $ingredients = $request->input('ingredients');
 
-        if ($isGuest || !$user->is_subscribed ) {
+        if ($isGuest) {
 
             $cacheKey = 'guest_recipes_' . $request->ip();
             $recipes = Cache::get($cacheKey, []);
-           if (count($recipes) >= 3) {
-               return redirect()->route('home')->withErrors(['guest_limit' => 'Daily limit reached. Please try again tomorrow.']);
-           }
+            if (count($recipes) >= 3) {
+                return redirect()->route('home')->withErrors([
+                    'guest_limit' => self::GUEST_LIMIT_ERROR
+                ]);
+            }
+            $recipe = RecipeUtil::generateRecipe($ingredients);
 
-            $ingredients = $request->input('ingredients');
-            $recipe = RecipeUtil::generateRecipe($ingredients)->get();
-
-            $recipes[] = $recipe;
+            $recipes[Str::random(8)] = $recipe->toArray();
             Cache::put($cacheKey, $recipes, now()->addDay());
 
-            return redirect()->route('home')->with('recipe', $recipe);
+            return redirect()->route('home')->with([
+                'recipe' => $recipe->get(),
+                'recipes' => $recipes
+            ]);
         }
-        $ingredients = $request->input('ingredients');
-        $recipe = RecipeUtil::generateRecipe($ingredients)->get();
+        if ($user && !$user->is_subscribed) {
+            if ($user->dayRecipeCount() > 2) {
+                return redirect()->route('home')->withErrors(
+                    [
+                        'subscription_limit' => self::SUBSCRIPTION_LIMIT_ERROR
+                    ]
+                );
+            }
+
+            $recipe = RecipeUtil::generateRecipe($ingredients);
+
+            if ($user->recipeCount() > 4) {
+                $user->deleteOldestRecipe();
+            }
+
+            //Create the recipe in the database
+            $recipeArray = $recipe->toArray();
+
+            //get user's latest 5 recipes
+            $recipes = $user->recipe()->latest()->take(5)->get();
+
+            return redirect()->route('home')->with([
+                'recipe' => $recipe->get(),
+                'recipes' => $recipes
+            ]);
+        }
+
+        $recipe = RecipeUtil::generateRecipe($ingredients);
+
+        $recipeArray = $recipe->toArray();
+
+        //store new recipe in the database
 
 
-        return redirect()->route('home')->with('recipe', $recipe);
+        //get all user recipes and paginate them
+        $recipes = $user->recipe()->latest()->paginate(5);
+
+        return redirect()->route('home')->with([
+            'recipe' => $recipe->get(),
+            'recipes' => $recipes,
+        ]);
     }
 
     /**

@@ -9,7 +9,6 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        dd($request->ip());
         auth()->user();
         return Inertia::render('Home', [
             'recipe' => session('recipe'),

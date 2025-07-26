@@ -3,20 +3,28 @@
 namespace App\Services;
 
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class RecipeService
 {
     private string $recipe;
     private array $userIngredients;
     private array $parsedRecipe;
+    private string $guestCacheKey;
+    private User $user;
 
     private const INGREDIENTS = 'Ingredients';
     private const INSTRUCTIONS = 'Instructions';
-
+    private const GUEST_LIMIT_ERROR = 'Daily limit reached. Please try again tomorrow.';
+    private const SUBSCRIPTION_LIMIT_ERROR = 'You have reached your daily recipe limit. 
+    Please subscribe to get more recipes.';
+    private const GUEST_CACHE = 'guest_recipes_';
     /**
      * Get the generated recipe.
      *
@@ -63,6 +71,12 @@ class RecipeService
     public function toArray(): array
     {
         return $this->parsedRecipe;
+    }
+
+    public function setUser(User $user): self
+    {
+        $this->user = $user;
+        return $this;
     }
 
     /**
@@ -147,5 +161,104 @@ class RecipeService
         }
 
         return $recipes ?: [];
+    }
+
+    /**
+     * @throws ConnectionException
+     * @throws Exception
+     */
+    public function guestStore(array $ingredients, string $ip): RecipeService
+    {
+        $cacheKey = 'guest_recipes_' . $ip;
+        $this->guestCacheKey = $cacheKey;
+        $recipes = Cache::get($cacheKey, []);
+
+        if (count($recipes) >= 3) {
+            throw new Exception(self::GUEST_LIMIT_ERROR);
+        }
+
+        $recipe = $this->generateRecipe($ingredients);
+        $recipes[Str::uuid()->toString()] = $recipe->toArray();
+        Cache::put($cacheKey, $recipes, now()->addDay());
+
+        return $recipe;
+    }
+
+    /**
+     * @throws ConnectionException
+     * @throws Exception
+     */
+    public function standardStore (array $ingredients, User $user): RecipeService
+    {
+        if ($user->dayRecipeCount() > 2) {
+            throw new Exception(self::SUBSCRIPTION_LIMIT_ERROR);
+        }
+
+        $recipe = $this->generateRecipe($ingredients);
+
+        if ($user->recipeCount() > 4) {
+            $user->deleteOldestRecipe();
+        }
+
+        // Create the recipe in the database
+        $recipeArray = $recipe->toArray();
+        $user->recipe()->create($recipeArray);
+
+        return $recipe;
+    }
+
+    /**
+     * @throws ConnectionException
+     * @throws Exception
+     * Store a premium recipe for a user.
+     */
+    public function storePremium(array $ingredients, User $user): RecipeService
+    {
+        $recipe = $this->generateRecipe($ingredients);
+
+        // Create the recipe in the database
+        $recipeArray = $recipe->toArray();
+        $user->recipe()->create($recipeArray);
+
+        return $recipe;
+    }
+
+    /**
+     * Get the latest guest recipes.
+     *
+     * @param string|null $ip
+     * @return array
+     */
+    public function getGuestRecipes(string $ip = null): array
+    {
+        $cacheKey = $this->guestCacheKey;
+        if ($ip) {
+            $cacheKey = 'guest_recipes_' . $ip;
+        }
+        return Cache::get($cacheKey, []);
+    }
+
+    /**
+     * Get the latest standard recipes for a standard user.
+     *
+     * @param User|null $user
+     * @return array
+     */
+    public function getStandardRecipes(User $user = null): array
+    {
+        $user = $user ?? $this->user;
+        return $user->recipe()->latest()->take(5)->get()->toArray();
+    }
+
+    /**
+     * Get the latest premium recipes for a premium user.
+     *
+     * @param User|null $user
+     * @return LengthAwarePaginator|null
+     */
+    public function getPremiumRecipes(User $user = null): ?LengthAwarePaginator
+    {
+        $user = $user ?? $this->user;
+        return $user->recipe()->latest()->paginate(5) ?? null;
     }
 }

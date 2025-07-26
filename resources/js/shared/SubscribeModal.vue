@@ -6,7 +6,7 @@ const page = usePage()
 const props = defineProps<{ isLoggedIn: boolean }>()
 const emit = defineEmits(['close'])
 
-const guestLimitError = computed(() => page.props?.errors?.guest_limit)
+const guestLimitError = computed(() => page.props?.errors?.error)
 
 function handleAction() {
     window.location.href = props.isLoggedIn ? '/subscription/create' : '/login'

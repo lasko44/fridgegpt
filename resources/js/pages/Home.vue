@@ -32,7 +32,7 @@ const isLoggedIn = computed(() => !!page.props?.auth?.user)
 
 // Watch for guest_limit error and show/hide modal
 watch(
-    () => page.props?.errors?.guest_limit,
+    () => page.props?.errors?.error,
     (val) => {
         showModal.value = !!val
     },
@@ -42,9 +42,6 @@ watch(
 // Clear guest_limit error when modal closes
 function handleModalClose() {
     showModal.value = false
-    if (page.props?.errors?.guest_limit) {
-        page.props.errors.guest_limit = null
-    }
 }
 </script>
 

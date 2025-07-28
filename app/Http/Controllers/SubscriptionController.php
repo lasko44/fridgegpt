@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -29,7 +30,7 @@ class SubscriptionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): \Illuminate\Http\JsonResponse
+    public function store(Request $request): RedirectResponse
     {
         $user = $request->user();
         $paymentMethod = $request->input('payment_method');
@@ -47,7 +48,7 @@ class SubscriptionController extends Controller
             ->trialDays(7)
             ->create($paymentMethod);
 
-        return Inertia::location(route('home'))
+        return redirect()->route('home')
             ->with('success', 'Subscription created successfully!');
     }
 

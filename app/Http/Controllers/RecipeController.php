@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\RecipeUtil;
 use App\Models\Recipe;
-use App\Services\RecipeRateLimiter;
-use Illuminate\Http\Client\ConnectionException;
+use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class RecipeController extends Controller
 {
+
+
     /**
      * Display a listing of the resource.
      */
@@ -29,26 +31,40 @@ class RecipeController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     * @throws ConnectionException
      */
-   public function store(Request $request): object
-   {
-       $rateLimiter = new RecipeRateLimiter();
+    public function store(Request $request): object
+    {
+        $user = $request->user();
+        $ingredients = $request->input('ingredients');
+        $ip = $request->ip();
 
-       if ($rateLimiter->tooManyAttempts($request->ip())) {
-           $seconds = $rateLimiter->availableIn($request->ip());
-           return response()->json([
-               'error' => "Too many requests. Please wait {$seconds} seconds before trying again."
-           ], Response::HTTP_TOO_MANY_REQUESTS);
-       }
-       $rateLimiter->hit($request->ip());
+        try {
+            if (!$user) {
+                $recipe = RecipeUtil::guestStore($ingredients, $ip);
+                $recipes = RecipeUtil::getGuestRecipes($ip);
+            } elseif (!$user->is_subscribed) {
+                $recipe = RecipeUtil::standardStore($ingredients, $user);
+                $recipes = RecipeUtil::getStandardRecipes($user);
+            } else {
+                $recipe = RecipeUtil::generateRecipe($ingredients);
+                $recipes = RecipeUtil::getPremiumRecipes($user);
+                return redirect()->route('home')->with([
+                    'paginated' => true,
+                    'recipe' => $recipe->get(),
+                    'recipes' => $recipes
+                ]);
+            }
 
-       $ingredients = $request->input('ingredients');
-       $recipe = app('App\Services\RecipeService')->generateRecipe($ingredients);
-
-       return redirect()->route('home')->with('recipe', $recipe);
-   }
-
+            return redirect()->route('home')->with([
+                'recipe' => $recipe->get(),
+                'recipes' => $recipes
+            ]);
+        } catch (Exception $e) {
+            return redirect()->route('home')->withErrors([
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
     /**
      * Display the specified resource.
      */

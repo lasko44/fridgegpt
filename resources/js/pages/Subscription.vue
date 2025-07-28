@@ -123,7 +123,6 @@ async function submitSubscription() {
             error.value = errors.payment_method || 'Failed to create subscription.';
         },
         onSuccess: () => {
-            alert('Subscription created!');
         },
         preserveScroll: true,
     });

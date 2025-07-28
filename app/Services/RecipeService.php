@@ -243,6 +243,8 @@ class RecipeService
     public function getStandardRecipes(User $user = null): array
     {
         $standardUser = $user ?? $this->user;
+        if(!$standardUser) {
+        }
         return $standardUser->recipe()->latest()->take(5)->get()->toArray();
     }
 

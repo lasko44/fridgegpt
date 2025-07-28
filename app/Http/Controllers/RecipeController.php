@@ -35,43 +35,36 @@ class RecipeController extends Controller
     public function store(Request $request): object
     {
         $user = $request->user();
-        $isGuest = !$user;
         $ingredients = $request->input('ingredients');
         $ip = $request->ip();
 
         try {
-            if ($isGuest) {
-
+            if (!$user) {
                 $recipe = RecipeUtil::guestStore($ingredients, $ip);
-
-                return redirect()->route('home')->with([
-                    'recipe' => $recipe->get(),
-                    'recipes' => RecipeUtil::getGuestRecipes($ip)
-                ]);
-            }
-            if ($user && !$user->is_subscribed) {
+                $recipes = RecipeUtil::getGuestRecipes($ip);
+            } elseif (!$user->is_subscribed) {
                 $recipe = RecipeUtil::standardStore($ingredients, $user);
-
+                $recipes = RecipeUtil::getStandardRecipes($user);
+            } else {
+                $recipe = RecipeUtil::generateRecipe($ingredients);
+                $recipes = RecipeUtil::getPremiumRecipes($user);
                 return redirect()->route('home')->with([
+                    'paginated' => true,
                     'recipe' => $recipe->get(),
-                    'recipes' => RecipeUtil::getStandardRecipes($user)
+                    'recipes' => $recipes
                 ]);
             }
+
+            return redirect()->route('home')->with([
+                'recipe' => $recipe->get(),
+                'recipes' => $recipes
+            ]);
         } catch (Exception $e) {
             return redirect()->route('home')->withErrors([
                 'error' => $e->getMessage()
             ]);
         }
-
-        $recipe = RecipeUtil::generateRecipe($ingredients);
-
-        return redirect()->route('home')->with([
-            'paginated' => true,
-            'recipe' => $recipe->get(),
-            'recipes' => RecipeUtil::getPremiumRecipes($user)
-        ]);
     }
-
     /**
      * Display the specified resource.
      */

@@ -5,6 +5,7 @@ import { useHead } from '@vueuse/head'
 import CtaCard from '../shared/cta-card.vue'
 import Hero from '@/shared/Hero.vue'
 import SubscribeModal from '@/shared/SubscribeModal.vue'
+import RecipeList from '../shared/RecipeList.vue'
 import { usePage } from '@inertiajs/vue3'
 
 useHead({
@@ -15,7 +16,7 @@ useHead({
         { name: 'viewport', content: 'width=device-width, initial-scale=1.0' },
     ],
 })
-const props = defineProps<{ recipe?: string }>()
+const props = defineProps<{ recipe?: string; recipes?: any[] | { data: any[]; [key: string]: any } }>()
 const page = usePage()
 
 const recipeSection = ref<HTMLElement | null>(null)
@@ -30,6 +31,12 @@ watch(() => props.recipe, async (val) => {
 const showModal = ref(false)
 const isLoggedIn = computed(() => !!page.props?.auth?.user)
 const premium = computed(() => page.props?.auth?.user?.is_subscribed || false)
+
+const hasRecipes = computed(() => {
+    if (!props.recipes) return false;
+    if (Array.isArray(props.recipes)) return props.recipes.length > 0;
+    return Array.isArray(props.recipes.data) && props.recipes.data.length > 0;
+})
 
 // Watch for guest_limit error and show/hide modal
 watch(
@@ -69,8 +76,11 @@ function handleModalClose() {
                 <h2 class="mb-2 text-2xl font-bold">Your Recipe</h2>
                 <pre class="whitespace-pre-wrap">{{ props.recipe }}</pre>
             </section>
-            <div v-if="!premium" class="mt-10 flex justify-center">
+            <div v-if="!premium" class="mt-10 flex flex-col items-center">
                 <CtaCard />
+            </div>
+            <div v-if="hasRecipes" class="w-3/4 my-8 mx-auto">
+                <RecipeList :recipes="props.recipes" />
             </div>
         </main>
         <SubscribeModal v-if="showModal" :is-logged-in="isLoggedIn" @close="handleModalClose" />

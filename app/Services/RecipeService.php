@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\UserNotFoundException;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
@@ -25,6 +26,7 @@ class RecipeService
     private const SUBSCRIPTION_LIMIT_ERROR = 'You have reached your daily recipe limit. 
     Please subscribe to get more recipes.';
     private const GUEST_CACHE = 'guest_recipes_';
+
     /**
      * Get the generated recipe.
      *
@@ -43,7 +45,10 @@ class RecipeService
         ])->post('https://api.openai.com/v1/chat/completions', [
             'model' => 'gpt-3.5-turbo',
             'messages' => [
-                ['role' => 'user', 'content' => "I have these ingredients: $ingredientList. Give me a recipe. Spit the recipe into title, ingredients, and instructions. Use the following format:\n\nTitle: [Recipe Title]\n\nIngredients:\n [Ingredient 1]\n [Ingredient 2]\n\nInstructions:\n1. [Step 1]\n2. [Step 2]\n3. [Step 3]"],
+                [
+                    'role' => 'user',
+                    'content' => "I have these ingredients: $ingredientList. Give me a recipe. Spit the recipe into title, ingredients, and instructions. Use the following format:\n\nTitle: [Recipe Title]\n\nIngredients:\n [Ingredient 1]\n [Ingredient 2]\n\nInstructions:\n1. [Step 1]\n2. [Step 2]\n3. [Step 3]"
+                ],
             ],
         ]);
 
@@ -144,19 +149,19 @@ class RecipeService
      */
     public function getRecipes(User $user = null, string $ip = null): array
     {
-        $cacheKey = $ip ? 'guest_recipes_'.$ip : null;
+        $cacheKey = $ip ? 'guest_recipes_' . $ip : null;
         $recipes = null;
 
         //Guest user recipes
-        if(!$user && $cacheKey) {
+        if (!$user && $cacheKey) {
             $recipes = Cache::get($cacheKey, null);
         }
         //Standard user recipes
-        if($user && !$user->is_subscribed) {
+        if ($user && !$user->is_subscribed) {
             $recipes = $user->recipe()->latest()->take(5)->get() ?? null;
         }
         //Premium user recipes
-        if($user && $user->is_subscribed) {
+        if ($user && $user->is_subscribed) {
             $recipes = $user->recipe()->latest()->paginate(5) ?? null;
         }
 
@@ -188,7 +193,7 @@ class RecipeService
      * @throws ConnectionException
      * @throws Exception
      */
-    public function standardStore (array $ingredients, User $user): RecipeService
+    public function standardStore(array $ingredients, User $user): RecipeService
     {
         if ($user->dayRecipeCount() > 2) {
             throw new Exception(self::SUBSCRIPTION_LIMIT_ERROR);
@@ -239,12 +244,16 @@ class RecipeService
      *
      * @param User|null $user
      * @return array
+     * @throws UserNotFoundException
      */
     public function getStandardRecipes(User $user = null): array
     {
         $standardUser = $user ?? $this->user;
-        if(!$standardUser) {
+
+        if (!$standardUser) {
+            throw new UserNotFoundException();
         }
+
         return $standardUser->recipe()->latest()->take(5)->get()->toArray();
     }
 
@@ -253,10 +262,16 @@ class RecipeService
      *
      * @param User|null $user
      * @return LengthAwarePaginator|null
+     * @throws UserNotFoundException
      */
     public function getPremiumRecipes(User $user = null): ?LengthAwarePaginator
     {
         $premiumUser = $user ?? $this->user;
+
+        if (!$premiumUser) {
+            throw new UserNotFoundException();
+        }
+
         return $premiumUser->recipe()->latest()->paginate(5) ?? null;
     }
 
@@ -273,8 +288,7 @@ class RecipeService
 
         try {
             $userRecipe->ingredients()->createMany($recipe->ingredients());
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $userRecipe->delete();
             throw new Exception('Failed to store recipe ingredients: ' . $e->getMessage());
         }

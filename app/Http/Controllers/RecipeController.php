@@ -46,7 +46,7 @@ class RecipeController extends Controller
 
                 return redirect()->route('home')->with([
                     'recipe' => $recipe->get(),
-                    'recipes' => RecipeUtil::getGuestRecipes()
+                    'recipes' => RecipeUtil::getGuestRecipes($ip)
                 ]);
             }
             if ($user && !$user->is_subscribed) {
@@ -54,7 +54,7 @@ class RecipeController extends Controller
 
                 return redirect()->route('home')->with([
                     'recipe' => $recipe->get(),
-                    'recipes' => RecipeUtil::getStandardRecipes()
+                    'recipes' => RecipeUtil::getStandardRecipes($user)
                 ]);
             }
         } catch (Exception $e) {
@@ -68,7 +68,7 @@ class RecipeController extends Controller
         return redirect()->route('home')->with([
             'paginated' => true,
             'recipe' => $recipe->get(),
-            'recipes' => RecipeUtil::getPremiumRecipes()
+            'recipes' => RecipeUtil::getPremiumRecipes($user)
         ]);
     }
 

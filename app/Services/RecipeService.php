@@ -17,7 +17,7 @@ class RecipeService
     private array $userIngredients;
     private array $parsedRecipe;
     private string $guestCacheKey;
-    private User $user;
+    private ?User $user = null;
 
     private const INGREDIENTS = 'Ingredients';
     private const INSTRUCTIONS = 'Instructions';
@@ -118,7 +118,7 @@ class RecipeService
         preg_match('/Ingredients:\s*\n((?:- .*\n?)*)/m', $recipeText, $ingredientsMatch);
         $ingredientsRaw = $ingredientsMatch[1] ?? '';
         $ingredients = array_map(function ($line) {
-            return trim(ltrim($line, "- "));
+            return ['name' => trim(ltrim($line, "- "))];
         }, array_filter(explode("\n", $ingredientsRaw)));
 
         // Extract instructions
@@ -199,10 +199,7 @@ class RecipeService
         if ($user->recipeCount() > 4) {
             $user->deleteOldestRecipe();
         }
-
-        // Create the recipe in the database
-        $recipeArray = $recipe->toArray();
-        $user->recipe()->create($recipeArray);
+        $this->storeUserRecipe($user, $recipe, $ingredients);
 
         return $recipe;
     }
@@ -217,8 +214,7 @@ class RecipeService
         $recipe = $this->generateRecipe($ingredients);
 
         // Create the recipe in the database
-        $recipeArray = $recipe->toArray();
-        $user->recipe()->create($recipeArray);
+        $this->storeUserRecipe($user, $recipe, $ingredients);
 
         return $recipe;
     }
@@ -246,8 +242,8 @@ class RecipeService
      */
     public function getStandardRecipes(User $user = null): array
     {
-        $user = $user ?? $this->user;
-        return $user->recipe()->latest()->take(5)->get()->toArray();
+        $standardUser = $user ?? $this->user;
+        return $standardUser->recipe()->latest()->take(5)->get()->toArray();
     }
 
     /**
@@ -258,7 +254,27 @@ class RecipeService
      */
     public function getPremiumRecipes(User $user = null): ?LengthAwarePaginator
     {
-        $user = $user ?? $this->user;
-        return $user->recipe()->latest()->paginate(5) ?? null;
+        $premiumUser = $user ?? $this->user;
+        return $premiumUser->recipe()->latest()->paginate(5) ?? null;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function storeUserRecipe(User $user, RecipeService $recipe): void
+    {
+
+        $userRecipe = $user->recipe()->create([
+            'name' => $recipe->title(),
+            'description' => $recipe->get(),
+        ]);
+
+        try {
+            $userRecipe->ingredients()->createMany($recipe->ingredients());
+        }
+        catch (Exception $e) {
+            $userRecipe->delete();
+            throw new Exception('Failed to store recipe ingredients: ' . $e->getMessage());
+        }
     }
 }

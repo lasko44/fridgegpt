@@ -29,6 +29,7 @@ watch(() => props.recipe, async (val) => {
 
 const showModal = ref(false)
 const isLoggedIn = computed(() => !!page.props?.auth?.user)
+const premium = computed(() => page.props?.auth?.user?.is_subscribed || false)
 
 // Watch for guest_limit error and show/hide modal
 watch(
@@ -68,7 +69,7 @@ function handleModalClose() {
                 <h2 class="mb-2 text-2xl font-bold">Your Recipe</h2>
                 <pre class="whitespace-pre-wrap">{{ props.recipe }}</pre>
             </section>
-            <div v-if="!$attrs.userLoggedIn" class="mt-10 flex justify-center">
+            <div v-if="!premium" class="mt-10 flex justify-center">
                 <CtaCard />
             </div>
         </main>

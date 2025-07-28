@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Facades\RecipeUtil;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 

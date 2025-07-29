@@ -15,7 +15,7 @@ const recipeList = computed(() => {
 
 <template>
     <div class="overflow-x-auto">
-        <h4 class="my-4 text-2xl">Recent Recipes</h4>
+        <h4 class="my-4 text-2xl font-bold">Recent Recipes</h4>
         <table class="min-w-full border border-gray-200 rounded-lg shadow">
             <thead>
             <tr class="bg-gray-100">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Facades\RecipeUtil;
 use App\Models\Recipe;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -76,9 +77,9 @@ class RecipeController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Recipe $recipe)
+    public function edit($user, Recipe $recipe = null)
     {
-        //
+
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\UserNotFoundException;
+use App\Facades\Guest;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
@@ -47,7 +48,9 @@ class RecipeService
             'messages' => [
                 [
                     'role' => 'user',
-                    'content' => "I have these ingredients: $ingredientList. Give me a recipe. Spit the recipe into title, ingredients, and instructions. Use the following format:\n\nTitle: [Recipe Title]\n\nIngredients:\n [Ingredient 1]\n [Ingredient 2]\n\nInstructions:\n1. [Step 1]\n2. [Step 2]\n3. [Step 3]"
+                    'content' => "I have these ingredients: $ingredientList. Give me a recipe. Spit the recipe into title, 
+                    ingredients, and instructions. Use the following format:\n\nTitle: [Recipe Title]\n\nIngredients:\n 
+                    [Ingredient 1]\n [Ingredient 2]\n\nInstructions:\n1. [Step 1]\n2. [Step 2]\n3. [Step 3]"
                 ],
             ],
         ]);
@@ -174,6 +177,9 @@ class RecipeService
      */
     public function guestStore(array $ingredients, string $ip): RecipeService
     {
+//        $guestCacheKey =  Guest::getGuestCacheKey();
+//        Guest::startGuestCache($ip);
+
         $cacheKey = 'guest_recipes_' . $ip;
         $this->guestCacheKey = $cacheKey;
         $recipes = Cache::get($cacheKey, []);
@@ -214,7 +220,7 @@ class RecipeService
      * @throws Exception
      * Store a premium recipe for a user.
      */
-    public function storePremium(array $ingredients, User $user): RecipeService
+    public function premiumStore(array $ingredients, User $user): RecipeService
     {
         $recipe = $this->generateRecipe($ingredients);
 

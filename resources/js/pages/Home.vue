@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, nextTick, computed } from 'vue';
+import { ref, watch, nextTick, computed, onMounted } from 'vue';
 import MyLayout from '../layouts/MyLayout.vue';
 import { useHead } from '@vueuse/head';
 import CtaCard from '../shared/cta-card.vue';
@@ -62,6 +62,17 @@ const show419ErrorModal = ref(page.props.show419ErrorModal || false);
 function handle419ModalClose() {
     show419ErrorModal.value = false;
 }
+
+// Timezone detection and redirect if not present in URL
+onMounted(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('timezone')) {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        window.location.replace(
+            window.location.pathname + '?timezone=' + encodeURIComponent(timezone)
+        );
+    }
+});
 </script>
 
 <template>

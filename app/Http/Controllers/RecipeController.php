@@ -46,7 +46,7 @@ class RecipeController extends Controller
                 $recipe = RecipeUtil::standardStore($ingredients, $user);
                 $recipes = RecipeUtil::getStandardRecipes($user);
             } else {
-                $recipe = RecipeUtil::generateRecipe($ingredients);
+                $recipe = RecipeUtil::premiumStore($ingredients, $user);
                 $recipes = RecipeUtil::getPremiumRecipes($user);
                 return redirect()->route('home')->with([
                     'paginated' => true,

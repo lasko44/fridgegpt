@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Exceptions\UserNotFoundException;
 use App\Facades\Guest;
+use App\Facades\ModelSlugger;
+use App\Models\Recipe;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
@@ -289,6 +291,7 @@ class RecipeService
 
         $userRecipe = $user->recipe()->create([
             'name' => $recipe->title(),
+            'slug' => ModelSlugger::slug(Recipe::class, $recipe->title()),
             'description' => $recipe->get(),
         ]);
 

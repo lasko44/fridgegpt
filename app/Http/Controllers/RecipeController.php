@@ -52,13 +52,11 @@ class RecipeController extends Controller
                 return redirect()->route('home')->with([
                     'paginated' => true,
                     'recipe' => $recipe->get(),
-                    'recipes' => $recipes
                 ]);
             }
 
             return redirect()->route('home')->with([
-                'recipe' => $recipe->get(),
-                'recipes' => $recipes
+                'recipe' => $recipe->get()
             ]);
         } catch (Exception $e) {
             return redirect()->route('home')->withErrors([
@@ -87,7 +85,7 @@ class RecipeController extends Controller
      */
     public function update(Request $request, Recipe $recipe)
     {
-        //
+        //implement the update logic here
     }
 
     /**

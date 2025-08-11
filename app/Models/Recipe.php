@@ -16,6 +16,12 @@ class Recipe extends Model
 
     protected $guarded = ['id'];
 
+    //use the slug as the route key
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -32,8 +38,9 @@ class Recipe extends Model
             get: fn($value) => Carbon::parse($value)
                 ->timezone(Cache::get('user_timezone', 'UTC'))
                 ->format(
-                    Carbon::parse($value)->isToday() ? '\T\o\d\a\y \a\t g:i A' :
-                        (Carbon::parse($value)->isYesterday() ? '\Y\e\s\t\e\r\d\a\y \a\t g:i A' : 'M d \a\t g:i A')
+                    Carbon::parse($value)->gt(Carbon::now()->subMinutes(5)) ? '\J\u\s\t\ \n\o\w' :
+                        (Carbon::parse($value)->isToday() ? '\T\o\d\a\y' :
+                            (Carbon::parse($value)->isYesterday() ? '\Y\e\s\t\e\r\d\a\y' : 'M d'))
                 )
         );
     }

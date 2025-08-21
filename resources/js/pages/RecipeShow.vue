@@ -38,7 +38,7 @@ useHead({
             <h1 class="text-2xl font-bold">{{ recipe.name }}</h1>
             <p class="mt-2 text-gray-700">Created by: {{ user?.name || 'Guest' }} {{ createdAtMessage }}</p>
         </section>
-        <section class="mx-auto mt-8 w-3/4 rounded bg-white p-6 text-left text-gray-900 shadow">
+        <section class="mx-auto mt-4 w-3/4 rounded bg-white p-6 text-left text-gray-900 shadow">
             <pre class="whitespace-pre-wrap">{{ recipe.description }}</pre>
         </section>
     </MyLayout>

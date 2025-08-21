@@ -10,7 +10,7 @@ class RecipeRateLimiter
     protected int $maxAttempts;
     protected int $decaySeconds;
 
-    public function __construct(int $maxAttempts = 1, int $decaySeconds = 30)
+    public function __construct(int $maxAttempts = 1, int $decaySeconds = 15)
     {
         $this->maxAttempts = $maxAttempts;
         $this->decaySeconds = $decaySeconds;

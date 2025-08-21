@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('recipes', function (Blueprint $table) {
+        Schema::create('guest_sessions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
-            $table->text('name');
-            $table->string('slug')->unique();
-            $table->text('description');
+            $table->string('ip_address')->unique();
+            $table->string('guest_cache_key')->unique();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('recipes');
+        Schema::dropIfExists('guest_sessions');
     }
 };

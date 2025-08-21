@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\ModelSlugger;
 use App\Http\Requests\SignupRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -27,8 +28,10 @@ class SignupController extends Controller
      */
     public function store(SignupRequest $request): RedirectResponse
     {
+
         $user = User::create([
             'name' => $request->name,
+            'username' => ModelSlugger::slug(User::class, $request->name, 'username'),
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);

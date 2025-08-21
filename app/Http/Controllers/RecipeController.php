@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Facades\RecipeUtil;
 use App\Models\Recipe;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class RecipeController extends Controller
 {
@@ -46,18 +48,16 @@ class RecipeController extends Controller
                 $recipe = RecipeUtil::standardStore($ingredients, $user);
                 $recipes = RecipeUtil::getStandardRecipes($user);
             } else {
-                $recipe = RecipeUtil::generateRecipe($ingredients);
+                $recipe = RecipeUtil::premiumStore($ingredients, $user);
                 $recipes = RecipeUtil::getPremiumRecipes($user);
                 return redirect()->route('home')->with([
                     'paginated' => true,
                     'recipe' => $recipe->get(),
-                    'recipes' => $recipes
                 ]);
             }
 
             return redirect()->route('home')->with([
-                'recipe' => $recipe->get(),
-                'recipes' => $recipes
+                'recipe' => $recipe->get()
             ]);
         } catch (Exception $e) {
             return redirect()->route('home')->withErrors([
@@ -70,15 +70,19 @@ class RecipeController extends Controller
      */
     public function show(Recipe $recipe)
     {
-        //
+        $recipe->load('ingredients');
+
+        return Inertia::render('RecipeShow', [
+            'recipe' => $recipe,
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Recipe $recipe)
+    public function edit($user, Recipe $recipe = null)
     {
-        //
+
     }
 
     /**
@@ -86,7 +90,7 @@ class RecipeController extends Controller
      */
     public function update(Request $request, Recipe $recipe)
     {
-        //
+        //implement the update logic here
     }
 
     /**

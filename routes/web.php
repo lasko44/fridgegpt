@@ -20,7 +20,7 @@ Route::get('/cookie-policy', function () {
 
 //Public routes
 Route::get('/', [HomeController::class, 'index'] )->name('home');
-Route::resource('recipe', RecipeController::class)->only('store');
+Route::resource('recipe', RecipeController::class)->only('store','show');
 
 Route::group(['middleware' => 'auth'], function () {
     Route::resource('subscription', \App\Http\Controllers\SubscriptionController::class);

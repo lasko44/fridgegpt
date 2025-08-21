@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class RecipeController extends Controller
 {
@@ -69,7 +70,11 @@ class RecipeController extends Controller
      */
     public function show(Recipe $recipe)
     {
-        //
+        $recipe->load('ingredients');
+
+        return Inertia::render('RecipeShow', [
+            'recipe' => $recipe,
+        ]);
     }
 
     /**

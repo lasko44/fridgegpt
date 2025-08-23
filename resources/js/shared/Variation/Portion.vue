@@ -2,14 +2,10 @@
 import { ref } from 'vue';
 import SwitchGroup from '../SwitchGroup.vue';
 
-const restrictions = [
-    'Vegan',
-    'Gluten-Free',
-    'Dairy-Free',
-    'Nut-Free',
-    'Halal',
-    'Kosher',
-    'Shellfish-Free',
+const portions = [
+    'Single',
+    'Double',
+    'Family',
 ];
 
 const selected = ref<string[]>([]);
@@ -21,9 +17,9 @@ const emit = defineEmits<{
 
 <template>
     <SwitchGroup
-        :options="restrictions"
+        :options="portions"
         v-model="selected"
-        label="Dietary Restrictions"
+        label="Portion Size"
         @update:modelValue="emit('update:selected', $event)"
     />
 </template>

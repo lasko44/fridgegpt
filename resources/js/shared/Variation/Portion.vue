@@ -5,7 +5,7 @@ import SwitchGroup from '../SwitchGroup.vue';
 const portions = [
     'Single',
     'Double',
-    'Family',
+    'Triple',
 ];
 
 const selected = ref<string[]>([]);

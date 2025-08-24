@@ -5,19 +5,38 @@ import IngredientModal from './IngredientModal.vue';
 type Ingredient = { name: string };
 
 const props = defineProps<{
+    modelValue: Ingredient[];
     ingredients: Ingredient[];
 }>();
 
-const localIngredients = ref<Ingredient[]>([...props.ingredients]);
-const ingredient = ref<Ingredient>('');
-const showModal = ref(false);
+const emit = defineEmits<{
+    (e: 'update:modelValue', value: Ingredient[]): void;
+}>();
+
+// Use default ingredients if modelValue is empty
+const localIngredients = ref<Ingredient[]>(
+    props.modelValue && props.modelValue.length
+        ? [...props.modelValue]
+        : [...props.ingredients]
+);
 
 watch(
-    () => props.ingredients,
+    () => props.modelValue,
     (newVal) => {
-        localIngredients.value = [...newVal];
-    },
+        if (
+            newVal &&
+            JSON.stringify(newVal) !== JSON.stringify(localIngredients.value)
+        ) {
+            localIngredients.value = [...newVal];
+        }
+    }
 );
+
+watch(localIngredients, (val) => {
+    emit('update:modelValue', val);
+});
+
+const showModal = ref(false);
 
 function removeIngredient(index: number) {
     localIngredients.value.splice(index, 1);
@@ -26,7 +45,7 @@ function removeIngredient(index: number) {
 function handleModalClose(newIngredients?: Ingredient[]) {
     showModal.value = false;
     if (newIngredients) {
-        localIngredients.value = newIngredients;
+        localIngredients.value = [...newIngredients];
     }
 }
 </script>

@@ -1,27 +1,34 @@
 <script setup lang="ts">
-import { ref, watch, toRefs } from 'vue';
+import { ref, watch, toRefs, computed } from 'vue';
 
 const props = defineProps<{
     options: string[];
     modelValue: string[];
     label: string;
+    columns?: number;
 }>();
 
 const emit = defineEmits<{
     (e: 'update:modelValue', value: string[]): void;
 }>();
 
-const { modelValue } = toRefs(props);
+const { modelValue, columns } = toRefs(props);
 const selected = ref<string[]>([...modelValue.value]);
 
 watch(selected, (val) => emit('update:modelValue', val));
 watch(modelValue, (val) => (selected.value = [...val]));
+
+const groupClass = computed(() =>
+    columns?.value && columns.value > 1
+        ? `grid grid-cols-${columns.value} gap-4`
+        : 'flex flex-col gap-4'
+);
 </script>
 
 <template>
     <section>
         <h3 class="mb-4 text-lg font-bold">{{ label }}</h3>
-        <div class="flex flex-col gap-4">
+        <div :class="groupClass">
             <label
                 v-for="option in options"
                 :key="option"

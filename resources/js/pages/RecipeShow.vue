@@ -48,7 +48,10 @@ useHead({
             <pre class="whitespace-pre-wrap">{{ recipe.description }}</pre>
         </section>
         <section v-if="user?.is_subscribed" id="variation-menu">
-            <VariationMenu :ingredients="recipe.ingredients"/>
+            <VariationMenu
+              :recipe_description="recipe.description"
+              :ingredients="recipe.ingredients.map(i => ({ name: i }))"
+            />
         </section>
     </MyLayout>
 </template>

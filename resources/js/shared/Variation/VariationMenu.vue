@@ -10,6 +10,7 @@ type Ingredient = { name: string };
 
 const props = defineProps<{
     ingredients: Ingredient[];
+    recipe_description: string;
 }>();
 
 const form = useForm({
@@ -17,7 +18,8 @@ const form = useForm({
     ingredients: [...props.ingredients],
     portion: [] as string[],
     servings: 1,
-    kitchenStaples: false, // add boolean field
+    kitchenStaples: false,
+    recipe_description: props.recipe_description,
 });
 
 function submit() {

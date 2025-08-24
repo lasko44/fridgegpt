@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, toRefs, computed } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps<{
     options: string[];
@@ -13,18 +13,14 @@ const emit = defineEmits<{
     (e: 'update:modelValue', value: string[] | string): void;
 }>();
 
-const { modelValue, columns, single } = toRefs(props);
-const selected = ref(props.single ? (modelValue.value as string) : [...(modelValue.value as string[])]);
-
-watch(selected, (val) => emit('update:modelValue', val));
-watch(modelValue, (val) => {
-    if (single.value) selected.value = val as string;
-    else selected.value = [...(val as string[])];
+const selected = computed({
+    get: () => props.modelValue,
+    set: (val) => emit('update:modelValue', val),
 });
 
 const groupClass = computed(() =>
-    columns?.value && columns.value > 1
-        ? `grid grid-cols-${columns.value} gap-4`
+    props.columns && props.columns > 1
+        ? `grid grid-cols-${props.columns} gap-4`
         : 'flex flex-col gap-4'
 );
 </script>

@@ -1,25 +1,11 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed } from 'vue';
 import SwitchGroup from '@/shared/SwitchGroup.vue';
 
 const restrictions = [
-    'Vegan',
-    'Vegetarian',
-    'Gluten-Free',
-    'Dairy-Free',
-    'Egg-Free',
-    'Soy-Free',
-    'Nut-Free',
-    'Peanut-Free',
-    'Halal',
-    'Kosher',
-    'Shellfish-Free',
-    'Low FODMAP',
-    'Paleo',
-    'Pescatarian',
-    'Low-Sodium',
-    'Sugar-Free',
-    'Diabetic-Friendly',
+    'Vegan', 'Vegetarian', 'Gluten-Free', 'Dairy-Free', 'Egg-Free', 'Soy-Free',
+    'Nut-Free', 'Peanut-Free', 'Halal', 'Kosher', 'Shellfish-Free', 'Low FODMAP',
+    'Paleo', 'Pescatarian', 'Low-Sodium', 'Sugar-Free', 'Diabetic-Friendly',
 ];
 
 const props = defineProps<{
@@ -30,13 +16,9 @@ const emit = defineEmits<{
     (e: 'update:modelValue', value: string[]): void;
 }>();
 
-const selected = ref<string[]>(props.modelValue ?? []);
-
-watch(selected, (val) => {
-    emit('update:modelValue', val);
-});
-watch(() => props.modelValue, (val) => {
-    if (val !== selected.value) selected.value = val;
+const selected = computed({
+    get: () => props.modelValue,
+    set: (val: string[]) => emit('update:modelValue', val),
 });
 </script>
 

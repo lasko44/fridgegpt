@@ -3,20 +3,24 @@ import { ref, watch, toRefs, computed } from 'vue';
 
 const props = defineProps<{
     options: string[];
-    modelValue: string[];
+    modelValue: string[] | string;
     label: string;
     columns?: number;
+    single?: boolean;
 }>();
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: string[]): void;
+    (e: 'update:modelValue', value: string[] | string): void;
 }>();
 
-const { modelValue, columns } = toRefs(props);
-const selected = ref<string[]>([...modelValue.value]);
+const { modelValue, columns, single } = toRefs(props);
+const selected = ref(props.single ? (modelValue.value as string) : [...(modelValue.value as string[])]);
 
 watch(selected, (val) => emit('update:modelValue', val));
-watch(modelValue, (val) => (selected.value = [...val]));
+watch(modelValue, (val) => {
+    if (single.value) selected.value = val as string;
+    else selected.value = [...(val as string[])];
+});
 
 const groupClass = computed(() =>
     columns?.value && columns.value > 1
@@ -35,6 +39,14 @@ const groupClass = computed(() =>
                 class="flex items-center gap-3 cursor-pointer"
             >
                 <input
+                    v-if="single"
+                    type="radio"
+                    :value="option"
+                    v-model="selected"
+                    class="sr-only peer"
+                />
+                <input
+                    v-else
                     type="checkbox"
                     :value="option"
                     v-model="selected"
@@ -51,17 +63,3 @@ const groupClass = computed(() =>
         </div>
     </section>
 </template>
-
-<style scoped>
-.sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0,0,0,0);
-    white-space: nowrap;
-    border-width: 0;
-}
-</style>

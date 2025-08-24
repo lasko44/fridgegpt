@@ -38,10 +38,6 @@ watch(localIngredients, (val) => {
 
 const showModal = ref(false);
 
-function removeIngredient(index: number) {
-    localIngredients.value.splice(index, 1);
-}
-
 function handleModalClose(newIngredients?: Ingredient[]) {
     showModal.value = false;
     if (newIngredients) {
@@ -58,21 +54,12 @@ function handleModalClose(newIngredients?: Ingredient[]) {
                 class="ml-2 text-xs flex items-center rounded-full font-bold hover:cursor-pointer bg-blue-700 hover:bg-blue-700/90 px-4 py-1 text-white"
                 @click="showModal = true"
             >
-                Add
+                Edit
             </button>
         </div>
         <div class="mb-4 flex flex-wrap gap-2">
-            <span v-for="(ing, idx) in localIngredients" :key="ing.name" class="flex items-center rounded-full bg-gray-200 px-4 py-1 text-gray-700">
+            <span v-for="(ing) in localIngredients" :key="ing.name" class="flex items-center rounded-full bg-gray-200 px-4 py-1 text-gray-700">
                 {{ ing.name }}
-                <button
-                    @click="removeIngredient(idx)"
-                    class="ml-2 text-gray-500 hover:text-red-500 focus:outline-none"
-                    aria-label="Remove ingredient"
-                    type="button"
-                    tabindex="0"
-                >
-                    <span class="hover:cursor-pointer" aria-hidden="true">&times;</span>
-                </button>
             </span>
         </div>
         <IngredientModal

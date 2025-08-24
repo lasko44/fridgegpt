@@ -8,11 +8,15 @@ const portions = [
     'Triple',
 ];
 
-const selected = ref<string[]>([]);
+const selected = ref<string>(''); // single selection
 
 const emit = defineEmits<{
-    (e: 'update:selected', value: string[]): void;
+    (e: 'update:selected', value: string): void;
 }>();
+
+function handleUpdate(val: string | string[]) {
+    emit('update:selected', typeof val === 'string' ? val : (val[0] ?? ''));
+}
 </script>
 
 <template>
@@ -20,6 +24,7 @@ const emit = defineEmits<{
         :options="portions"
         v-model="selected"
         label="Portion Size"
-        @update:modelValue="emit('update:selected', $event)"
+        @update:modelValue="handleUpdate"
+        :single="true"
     />
 </template>

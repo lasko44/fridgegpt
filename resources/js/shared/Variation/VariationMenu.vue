@@ -4,6 +4,7 @@ import IngredientVariation from '@/shared/Variation/IngredientVariation.vue';
 import Portion from '@/shared/Variation/Portion.vue';
 import Restrictions from '@/shared/Variation/Restrictions.vue';
 import { useForm } from '@inertiajs/vue3';
+import KitchenStaples from '@/shared/Variation/KitchenStaples.vue';
 
 type Ingredient = { name: string };
 
@@ -13,13 +14,14 @@ const props = defineProps<{
 
 const form = useForm({
     restrictions: [] as string[],
-    ingredients: [] as string[], // adjust as needed for your IngredientVariation
+    ingredients: [...props.ingredients],
     portion: [] as string[],
     servings: 1,
+    kitchenStaples: false, // add boolean field
 });
 
 function submit() {
-    form.post('/your-endpoint'); // replace with your actual endpoint
+    form.post('/your-endpoint');
 }
 </script>
 
@@ -32,6 +34,7 @@ function submit() {
                 <Restrictions v-model="form.restrictions" />
                 <Portion v-model="form.portion" />
                 <NumberSelect v-model="form.servings" label="Number of Servings" />
+                <KitchenStaples v-model="form.kitchenStaples" /> <!-- bind boolean -->
             </div>
             <div class="flex justify-end">
                 <button

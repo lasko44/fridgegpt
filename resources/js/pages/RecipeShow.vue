@@ -5,10 +5,12 @@ import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import VariationMenu from '@/shared/Variation/VariationMenu.vue';
 
+type Ingredient = { name: string };
+
 interface Recipe {
     name: string;
     description: string;
-    ingredients: string[];
+    ingredients: Ingredient[];
     created_at: string;
 }
 
@@ -50,7 +52,7 @@ useHead({
         <section v-if="user?.is_subscribed" id="variation-menu">
             <VariationMenu
               :recipe_description="recipe.description"
-              :ingredients="recipe.ingredients.map(i => ({ name: i }))"
+              :ingredients="recipe.ingredients"
             />
         </section>
     </MyLayout>

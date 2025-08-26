@@ -23,7 +23,7 @@ const form = useForm({
 });
 
 function submit() {
-    form.post('/your-endpoint');
+    form.post(route('variation.store'));
 }
 </script>
 

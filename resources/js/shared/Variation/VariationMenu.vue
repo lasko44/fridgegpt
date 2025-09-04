@@ -16,7 +16,7 @@ const props = defineProps<{
 const form = useForm({
     restrictions: [] as string[],
     ingredients: [...props.ingredients],
-    portion: [] as string[],
+    portion: null,
     servings: 1,
     kitchenStaples: false,
     recipe_description: props.recipe_description,

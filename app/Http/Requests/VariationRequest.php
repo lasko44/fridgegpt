@@ -7,6 +7,17 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class VariationRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $ingredients = $this->input('ingredients', []);
+        //only return the name of each ingredient
+        $ingredientNames = array_map(function ($ingredient) {
+            return $ingredient['name'] ?? '';
+        }, $ingredients);
+
+        $this->merge(['ingredients' => $ingredientNames]);
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -23,8 +34,11 @@ class VariationRequest extends FormRequest
      */
     public function rules(): array
     {
+        dd($this->all());
+        //dump the request after prepare for validation
         return [
-            //
+            'ingredients.*' => ['required', 'string', 'distinct', 'min:1'],
+
         ];
     }
 }

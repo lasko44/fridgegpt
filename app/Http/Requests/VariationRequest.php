@@ -40,7 +40,7 @@ class VariationRequest extends FormRequest
             'ingredients.*' => ['required', 'string', 'distinct', 'min:1'],
             'portion' => ['nullable', 'string'],
             'servings' => ['integer', 'min:1', 'max:20'],
-            'kitchen_staples' => ['required', 'boolean'],
+            'kitchen_staples' => ['boolean'],
             'recipe_description' => ['required', 'string', 'max:1000']
         ];
     }

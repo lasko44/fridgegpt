@@ -28,7 +28,7 @@ class VariationController extends Controller
      */
     public function store(VariationRequest $request)
     {
-        dd("hit here");
+
     }
 
     /**

@@ -1,4 +1,4 @@
-<?php
+y<?php
 
 namespace App\Facades;
 

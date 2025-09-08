@@ -29,7 +29,13 @@ class VariationController extends Controller
      */
     public function store(VariationRequest $request)
     {
-        $recipe = Variation::generate($request->validated());
+        try {
+            $recipe = Variation::generate($request->validated());
+        }
+        catch (\Exception $e) {
+            return back()->withErrors(['error' => 'An error occurred while generating variations. Please try again.']);
+        }
+
         dd($recipe);
 }
 

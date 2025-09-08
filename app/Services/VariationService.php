@@ -6,11 +6,21 @@ use Illuminate\Support\Facades\Http;
 
 class VariationService
 {
+    /**
+     * @param array $data
+     * @return string
+     * @throws \Illuminate\Http\Client\ConnectionException
+     */
     public function generate(array $data): string
     {
         return $this->call($data);
     }
 
+    /**
+     * @param array $data
+     * @return string
+     * @throws \Illuminate\Http\Client\ConnectionException
+     */
     private function call(array $data): string
     {
         $response = Http::retry(3, 2000)->withHeaders([
@@ -28,6 +38,10 @@ class VariationService
         return $response->json()['choices'][0]['message']['content'];;
     }
 
+    /**
+     * @param array $data
+     * @return string
+     */
     private function createMessage(array $data): string
     {
         $portion = $data['portion'] ?? '';

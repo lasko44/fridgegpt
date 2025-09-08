@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Arr;
 
 class VariationService
 {
@@ -44,11 +45,12 @@ class VariationService
      */
     private function createMessage(array $data): string
     {
-        $portion = $data['portion'] ?? '';
-        $servings = $data['servings'] ?? '';
-        $description = $data['recipe_description'] ?? '';
-        $ingredients = isset($data['ingredients']) ? implode("\n- ", $data['ingredients']) : '';
-        $restrictions = isset($data['restrictions']) ? implode("\n- ", $data['restrictions']) : '';
+        $portion = Arr::get($data, 'portion', '');
+        $servings = Arr::get($data, 'servings', '');
+        $description = Arr::get($data, 'recipe_description', '');
+
+        $ingredients = Arr::join($data['ingredients'] ?? [], "\n- ", '', '');
+        $restrictions = Arr::join($data['restrictions'] ?? [], "\n- ", '', '');'';
 
         return "Create a variation of the following recipe.
         Portion: {$portion}

@@ -6,13 +6,12 @@ use Illuminate\Support\Facades\Http;
 
 class VariationService
 {
-
-    public function generate(array $data): array
+    public function generate(array $data): string
     {
-
+        return $this->call($data);
     }
 
-    private function call(array $data): array
+    private function call(array $data): string
     {
         $response = Http::retry(3, 2000)->withHeaders([
             'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
@@ -22,15 +21,34 @@ class VariationService
             'messages' => [
                 [
                     'role' => 'user',
-                    'content' => $this->createMessage($data)
+                    'content' => $this->createMessage($data),
                 ],
             ],
         ]);
-        return $response->json();
+        return $response->json()['choices'][0]['message']['content'];;
     }
 
     private function createMessage(array $data): string
     {
-        return 'Hello';
+        $portion = $data['portion'] ?? '';
+        $servings = $data['servings'] ?? '';
+        $description = $data['recipe_description'] ?? '';
+        $ingredients = isset($data['ingredients']) ? implode("\n- ", $data['ingredients']) : '';
+        $restrictions = isset($data['restrictions']) ? implode("\n- ", $data['restrictions']) : '';
+
+        return "Create a variation of the following recipe.
+        Portion: {$portion}
+        Servings: {$servings}
+
+        Recipe Description:
+        {$description}
+
+        Additional Ingredients:
+        - {$ingredients}
+
+        Dietary Restrictions to consider:
+        - {$restrictions}
+
+        Please provide a new recipe variation that fits these restrictions and uses the listed ingredients.";
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\Variation;
 use App\Http\Requests\VariationRequest;
 use Illuminate\Http\Request;
 
@@ -28,8 +29,9 @@ class VariationController extends Controller
      */
     public function store(VariationRequest $request)
     {
-
-    }
+        $recipe = Variation::generate($request->validated());
+        dd($recipe);
+}
 
     /**
      * Display the specified resource.

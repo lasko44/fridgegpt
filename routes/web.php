@@ -5,6 +5,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\SignupController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\VariationController;
 use Illuminate\Support\Facades\Route;
 
 // Privacy and Terms of Service pages
@@ -23,7 +25,8 @@ Route::get('/', [HomeController::class, 'index'] )->name('home');
 Route::resource('recipe', RecipeController::class)->only('store','show');
 
 Route::group(['middleware' => 'auth'], function () {
-    Route::resource('subscription', \App\Http\Controllers\SubscriptionController::class);
+    Route::resource('subscription', SubscriptionController::class);
+    Route::resource('variation', VariationController::class);
 });
 
 

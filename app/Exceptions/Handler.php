@@ -4,6 +4,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 use Illuminate\Session\TokenMismatchException;
 use Inertia\Inertia;
@@ -19,5 +20,11 @@ class Handler extends ExceptionHandler
         }
 
         return parent::render($request, $exception);
+    }
+
+    public function report(Throwable $exception)
+    {
+        Log::error($exception->getMessage());
+        parent::report($exception);
     }
 }

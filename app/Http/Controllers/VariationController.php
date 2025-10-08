@@ -32,18 +32,21 @@ class VariationController extends Controller
     public function store(VariationRequest $request)
     {
         try {
-            $recipeVariation = Variation::generate($request->validated());
+            $variation = Variation::generate($request->validated());
 
-            $recipeVariation->store(Auth::user());
+            $recipe = $variation->store(Auth::user());
 
-            // Redirect to the newly created variation's page
-            return redirect()->route('recipe.show', ['recipe' => $recipeVariation]);
+         // Redirect to the newly created recipe's show page using the slug
+         return redirect()->route('recipe.show', $recipe->slug)
+             ->with('success', 'Variation generated successfully!');
+
+        } catch (Exception $e) {
+            return back()->withErrors([
+                'error' => 'An error occurred while generating variation: ' . $e->getMessage()
+            ]);
         }
-        catch (\Exception $e) {
-            return back()->withErrors(['error' => 'An error occurred while generating variation: ' . $e->getMessage()]);
-        }
 
-}
+    }
 
     /**
      * Display the specified resource.

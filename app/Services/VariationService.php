@@ -7,6 +7,7 @@ use App\Models\Recipe;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Arr;
 
@@ -40,7 +41,6 @@ class VariationService
      */
     public function store(User $user): Recipe
     {
-
         $variation = $user->recipe()->create([
             'name' => $this->title ?? 'Untitled Variation',
             'slug' => ModelSlugger::slug(Recipe::class, $this->title ?? 'Untitled Variation'),
@@ -52,12 +52,12 @@ class VariationService
 
         try {
             $variation->ingredients()->createMany($this->ingredients);
-            $variation->recipeRestrictions()->createMany($this->restrictions);
+            $variation->recipeRestriction()->createMany($this->mapRestrictons());
 
             return $variation;
         } catch (Exception $e) {
 
-            $variation->delete();
+            $variation->forceDelete();
             throw new Exception('Failed to save Variation: ' . $e->getMessage());
         }
 
@@ -185,21 +185,40 @@ class VariationService
         Recipe Description:
         {$description}
 
-        Additional Ingredients:
+        Ingredients:
         - {$ingredients}
 
         Dietary Restrictions to consider:
         - {$restrictions}
 
-        Please provide a new recipe variation that fits these restrictions and uses the listed ingredients.";
+        Please provide a new recipe variation that fits these restrictions and uses the listed ingredients.
+        Format the title the recipe like Title: <Recipe Title>.
+        provide a list of ingredients like this Ingredients:
+        followed by step-by-step cooking instructions.
+        List the restrictions like Restrictions: Then list portion sizes number of servings and if kitchen
+        staples are included.";
+
     }
 
+    /**
+     * @throws Exception
+     */
     private function extractTitle(string $input): ?string
     {
         if (preg_match('/Title:\s*(.+)/', $input, $matches)) {
-            return trim($matches[1]);
+            $title = trim($matches[1]);
+            $this->title = $title;
+            return $title;
         }
-        return null;
+        throw new Exception('Title not not Extracted from AI response');
+    }
+
+    private function mapRestrictons(): array
+    {
+        return array_map(function ($restriction) {
+            return ['name' => $restriction];
+        }, $this->restrictions ?? []);
+
     }
 
 

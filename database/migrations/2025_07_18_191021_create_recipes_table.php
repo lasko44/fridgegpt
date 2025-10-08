@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('recipes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id');
+            $table->boolean('is_favorite')->default(false);
             $table->text('name');
             $table->string('slug')->unique();
             $table->text('description');

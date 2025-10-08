@@ -2,27 +2,151 @@
 
 namespace App\Services;
 
+use App\Facades\ModelSlugger;
+use App\Models\Recipe;
+use App\Models\User;
+use Exception;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Arr;
 
 class VariationService
 {
-    /**
-     * @param array $data
-     * @return string
-     * @throws \Illuminate\Http\Client\ConnectionException
-     */
-    public function generate(array $data): string
-    {
-        return $this->call($data);
-    }
+    private ?array $ingredients = null;
+    private ?array $restrictions = null;
+    private ?string $portion = null;
+    private ?int $servings = null;
+    private ?string $description = null;
+    private ?int $recipeId = null;
+    private ?string $recipeVariation = null;
+    private ?string $title = null;
 
     /**
      * @param array $data
-     * @return string
-     * @throws \Illuminate\Http\Client\ConnectionException
+     * @return VariationService
+     * @throws ConnectionException
      */
-    private function call(array $data): string
+    public function generate(array $data): VariationService
+    {
+        //set the class properties
+        $this->setAllProperties($data);
+        $this->call($data);
+
+        return $this;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function store(User $user): Recipe
+    {
+
+        $variation = $user->recipe()->create([
+            'name' => $this->title ?? 'Untitled Variation',
+            'slug' => ModelSlugger::slug(Recipe::class, $this->title ?? 'Untitled Variation'),
+            'description' => $this->getRecipeVariation(),
+            'is_variation' => true,
+            'recipe_id' => $this->getRecipeId(),
+        ]);
+
+
+        try {
+            $variation->ingredients()->createMany($this->ingredients);
+            $variation->recipeRestrictions()->createMany($this->restrictions);
+
+            return $variation;
+        } catch (Exception $e) {
+
+            $variation->delete();
+            throw new Exception('Failed to save Variation: ' . $e->getMessage());
+        }
+
+    }
+
+    // region Getters and Setters
+    public function getIngredients(): array
+    {
+        return $this->ingredients;
+    }
+
+    public function setIngredients(array $ingredients): void
+    {
+        $this->ingredients = $ingredients;
+    }
+
+    public function getRestrictions(): array
+    {
+        return $this->restrictions;
+    }
+
+    public function setRestrictions(array $restrictions): void
+    {
+        $this->restrictions = $restrictions;
+    }
+
+    public function getPortion(): string
+    {
+        return $this->portion;
+    }
+
+    public function setPortion(string $portion): void
+    {
+        $this->portion = $portion;
+    }
+
+    public function getServings(): int
+    {
+        return $this->servings;
+    }
+
+    public function setServings(int $servings): void
+    {
+        $this->servings = $servings;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    public function getRecipeVariation()
+    {
+        return $this->recipeVariation;
+    }
+
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
+    }
+
+    public function getRecipeId(): int
+    {
+        return $this->recipeId;
+    }
+
+    public function setRecipeId(int $recipeId): void
+    {
+        $this->recipeId = $recipeId;
+    }
+
+
+    public function setAllProperties(array $data): void
+    {
+        $this->setIngredients(Arr::get($data, 'ingredients', []));
+        $this->setRestrictions(Arr::get($data, 'restrictions', []));
+        $this->setPortion(Arr::get($data, 'portion', ''));
+        $this->setServings(Arr::get($data, 'servings', 1));
+        $this->setDescription(Arr::get($data, 'recipe_description', ''));
+        $this->setRecipeId(Arr::get($data, 'recipe_id', 0));
+    }
+    // endregion
+
+    /**
+     * @param array $data
+     * @return void
+     * @throws ConnectionException
+     */
+    private function call(array $data): void
     {
         $response = Http::retry(3, 2000)->withHeaders([
             'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
@@ -36,7 +160,9 @@ class VariationService
                 ],
             ],
         ]);
-        return $response->json()['choices'][0]['message']['content'];;
+
+        $this->recipeVariation = $response->json()['choices'][0]['message']['content'];
+        $this->title = $this->extractTitle($this->recipeVariation);
     }
 
     /**
@@ -45,12 +171,12 @@ class VariationService
      */
     private function createMessage(array $data): string
     {
-        $portion = Arr::get($data, 'portion', '');
-        $servings = Arr::get($data, 'servings', '');
-        $description = Arr::get($data, 'recipe_description', '');
+        $portion = $this->portion;
+        $servings = $this->servings;
+        $description = $this->description;
 
-        $ingredients = Arr::join($data['ingredients'] ?? [], "\n- ", '', '');
-        $restrictions = Arr::join($data['restrictions'] ?? [], "\n- ", '', '');'';
+        $ingredients = Arr::join($this->ingredients, "\n- ", '', '');
+        $restrictions = Arr::join($this->restrictions, "\n- ", '', '');
 
         return "Create a variation of the following recipe.
         Portion: {$portion}
@@ -67,4 +193,14 @@ class VariationService
 
         Please provide a new recipe variation that fits these restrictions and uses the listed ingredients.";
     }
+
+    private function extractTitle(string $input): ?string
+    {
+        if (preg_match('/Title:\s*(.+)/', $input, $matches)) {
+            return trim($matches[1]);
+        }
+        return null;
+    }
+
+
 }

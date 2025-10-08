@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Facades\Variation;
 use App\Http\Requests\VariationRequest;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class VariationController extends Controller
 {
@@ -30,13 +32,17 @@ class VariationController extends Controller
     public function store(VariationRequest $request)
     {
         try {
-            $recipe = Variation::generate($request->validated());
+            $recipeVariation = Variation::generate($request->validated());
+
+            $recipeVariation->store(Auth::user());
+
+            // Redirect to the newly created variation's page
+            return redirect()->route('recipe.show', ['recipe' => $recipeVariation]);
         }
         catch (\Exception $e) {
-            return back()->withErrors(['error' => 'An error occurred while generating variations. Please try again.']);
+            return back()->withErrors(['error' => 'An error occurred while generating variation: ' . $e->getMessage()]);
         }
 
-        dd($recipe);
 }
 
     /**

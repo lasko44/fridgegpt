@@ -2,7 +2,7 @@
 import { useHead } from '@vueuse/head';
 import MyLayout from '@/layouts/MyLayout.vue';
 import { usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, provide } from 'vue';
 import VariationMenu from '@/shared/Variation/VariationMenu.vue';
 
 type Ingredient = { name: string };
@@ -24,6 +24,9 @@ const props = defineProps<{
 }>();
 
 const page = usePage();
+
+const recipe = props.recipe;
+provide('recipe', recipe);
 
 //get the user from the page props, casting to unknown first to resolve type mismatch
 const user = page.props.auth.user as unknown as User | null;

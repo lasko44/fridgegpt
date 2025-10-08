@@ -5,18 +5,29 @@ import Portion from '@/shared/Variation/Portion.vue';
 import Restrictions from '@/shared/Variation/Restrictions.vue';
 import { useForm } from '@inertiajs/vue3';
 import KitchenStaples from '@/shared/Variation/KitchenStaples.vue';
+import { inject } from 'vue';
 
 type Ingredient = { name: string };
+interface Recipe {
+    id: number;
+    name: string;
+    description: string;
+    ingredients: Ingredient[];
+    created_at: string;
+}
 
 const props = defineProps<{
     ingredients: Ingredient[];
     recipe_description: string;
 }>();
 
+const recipe = inject<Recipe | undefined>('recipe');
+
 const form = useForm({
+    recipe_id: recipe?.id ?? null,
     restrictions: [] as string[],
     ingredients: [...props.ingredients],
-    portion: null,
+    portion: "Single",
     servings: 1,
     kitchenStaples: false,
     recipe_description: props.recipe_description,
@@ -36,7 +47,7 @@ function submit() {
                 <Restrictions v-model="form.restrictions" />
                 <Portion v-model="form.portion" />
                 <NumberSelect v-model="form.servings" label="Number of Servings" />
-                <KitchenStaples v-model="form.kitchenStaples" /> <!-- bind boolean -->
+                <KitchenStaples v-model="form.kitchenStaples" />
             </div>
             <div class="flex justify-end">
                 <button

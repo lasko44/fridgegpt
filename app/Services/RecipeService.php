@@ -26,7 +26,7 @@ class RecipeService
     private const INGREDIENTS = 'Ingredients';
     private const INSTRUCTIONS = 'Instructions';
     private const GUEST_LIMIT_ERROR = 'Daily limit reached. Please try again tomorrow.';
-    private const SUBSCRIPTION_LIMIT_ERROR = 'You have reached your daily recipe limit. 
+    private const SUBSCRIPTION_LIMIT_ERROR = 'You have reached your daily recipe limit.
     Please subscribe to get more recipes.';
     private const GUEST_CACHE = 'guest_recipes_';
 
@@ -50,8 +50,8 @@ class RecipeService
             'messages' => [
                 [
                     'role' => 'user',
-                    'content' => "I have these ingredients: $ingredientList. Give me a recipe. Spit the recipe into title, 
-                    ingredients, and instructions. Use the following format:\n\nTitle: [Recipe Title]\n\nIngredients:\n 
+                    'content' => "I have these ingredients: $ingredientList. Give me a recipe. Spit the recipe into title,
+                    ingredients, and instructions. Use the following format:\n\nTitle: [Recipe Title]\n\nIngredients:\n
                     [Ingredient 1]\n [Ingredient 2]\n\nInstructions:\n1. [Step 1]\n2. [Step 2]\n3. [Step 3]"
                 ],
             ],
@@ -296,7 +296,9 @@ class RecipeService
         ]);
 
         try {
+
             $userRecipe->ingredients()->createMany($recipe->ingredients());
+
         } catch (Exception $e) {
             $userRecipe->delete();
             throw new Exception('Failed to store recipe ingredients: ' . $e->getMessage());

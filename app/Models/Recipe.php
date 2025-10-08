@@ -32,6 +32,12 @@ class Recipe extends Model
         return $this->hasMany(Ingredient::class);
     }
 
+    public function recipeRestriction (): HasMany
+    {
+        return $this->hasMany(RecipeRestriction::class);
+
+    }
+
     protected function createdAt(): Attribute
     {
         return Attribute::make(

@@ -36,9 +36,10 @@ class VariationController extends Controller
 
             $recipe = $variation->store(Auth::user());
 
-         // Redirect to the newly created recipe's show page using the slug
-         return redirect()->route('recipe.show', $recipe->slug)
-             ->with('success', 'Variation generated successfully!');
+           // Redirect to the newly created recipe's show page using the slug
+
+           return redirect()->route('recipe.show', $recipe->slug)
+               ->with('success', 'Variation generated successfully!');
 
         } catch (Exception $e) {
             return back()->withErrors([

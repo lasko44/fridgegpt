@@ -2,23 +2,13 @@
 import { useHead } from '@vueuse/head';
 import MyLayout from '@/layouts/MyLayout.vue';
 import { usePage } from '@inertiajs/vue3';
-import { computed, provide } from 'vue';
+import { computed, onMounted, provide } from 'vue';
 import VariationMenu from '@/shared/Variation/VariationMenu.vue';
+import { triggerToast } from '@/stores/toastStore';
+import { Recipe } from '@/interfaces/recipe';
+import { User } from '@/interfaces/user';
 
-type Ingredient = { name: string };
 
-interface Recipe {
-    name: string;
-    description: string;
-    ingredients: Ingredient[];
-    created_at: string;
-}
-
-interface User {
-    name: string;
-    is_subscribed: boolean;
-    // add other user properties as needed
-}
 const props = defineProps<{
     recipe: Recipe;
 }>();
@@ -28,6 +18,14 @@ const page = usePage();
 const recipe = props.recipe;
 provide('recipe', recipe);
 
+onMounted(() => {
+    triggerToast?.({
+        type: 'success',
+        title: 'Great news!',
+        message: 'Your recipe has been created successfully.',
+        duration: 5000,
+    });
+});
 //get the user from the page props, casting to unknown first to resolve type mismatch
 const user = page.props.auth.user as unknown as User | null;
 
@@ -53,10 +51,7 @@ useHead({
             <pre class="whitespace-pre-wrap">{{ recipe.description }}</pre>
         </section>
         <section v-if="user?.is_subscribed" id="variation-menu">
-            <VariationMenu
-              :recipe_description="recipe.description"
-              :ingredients="recipe.ingredients"
-            />
+            <VariationMenu :recipe_description="recipe.description" :ingredients="recipe.ingredients" />
         </section>
     </MyLayout>
 </template>

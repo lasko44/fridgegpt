@@ -51,7 +51,7 @@ class VariationService
 
 
         try {
-            $variation->ingredients()->createMany($this->ingredients);
+            $variation->ingredients()->createMany($this->mapIngredients());
             $variation->recipeRestriction()->createMany($this->mapRestrictons());
 
             return $variation;
@@ -219,6 +219,13 @@ class VariationService
             return ['name' => $restriction];
         }, $this->restrictions ?? []);
 
+    }
+
+    private function mapIngredients()
+    {
+        return array_map(function ($ingredient) {
+            return ['name' => $ingredient];
+        }, $this->ingredients ?? []);
     }
 
 

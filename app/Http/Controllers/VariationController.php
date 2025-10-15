@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Facades\Variation;
 use App\Http\Requests\VariationRequest;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -29,24 +30,23 @@ class VariationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(VariationRequest $request)
+    public function store(VariationRequest $request): RedirectResponse
     {
         try {
             $variation = Variation::generate($request->validated());
-
             $recipe = $variation->store(Auth::user());
 
-           // Redirect to the newly created recipe's show page using the slug
-
-           return redirect()->route('recipe.show', $recipe->slug)
-               ->with('success', 'Variation generated successfully!');
-
+            return redirect()->route('recipe.show', $recipe->slug)
+             ->with('flash', [
+                 'success' => 'Variation generated successfully!'
+             ]);
         } catch (Exception $e) {
-            return back()->withErrors([
-                'error' => 'An error occurred while generating variation: ' . $e->getMessage()
+            return back()->with([
+                'flash' => [
+                    'error' => 'An error occurred while generating variation: ' . $e->getMessage()
+                ]
             ]);
         }
-
     }
 
     /**

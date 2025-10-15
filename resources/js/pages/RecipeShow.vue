@@ -2,12 +2,11 @@
 import { useHead } from '@vueuse/head';
 import MyLayout from '@/layouts/MyLayout.vue';
 import { usePage } from '@inertiajs/vue3';
-import { computed, onMounted, provide } from 'vue';
+import { computed, provide} from 'vue';
 import VariationMenu from '@/shared/Variation/VariationMenu.vue';
-import { triggerToast } from '@/stores/toastStore';
+import { useFlashToast } from '@/composables/useFlashToast';
 import { Recipe } from '@/interfaces/recipe';
 import { User } from '@/interfaces/user';
-
 
 const props = defineProps<{
     recipe: Recipe;
@@ -18,14 +17,8 @@ const page = usePage();
 const recipe = props.recipe;
 provide('recipe', recipe);
 
-onMounted(() => {
-    triggerToast?.({
-        type: 'success',
-        title: 'Great news!',
-        message: 'Your recipe has been created successfully.',
-        duration: 5000,
-    });
-});
+useFlashToast();
+
 //get the user from the page props, casting to unknown first to resolve type mismatch
 const user = page.props.auth.user as unknown as User | null;
 

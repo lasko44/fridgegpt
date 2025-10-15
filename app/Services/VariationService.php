@@ -6,6 +6,7 @@ use App\Facades\ModelSlugger;
 use App\Models\Recipe;
 use App\Models\User;
 use Exception;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Http;
@@ -39,7 +40,7 @@ class VariationService
     /**
      * @throws Exception
      */
-    public function store(User $user): Recipe
+    public function store(Authenticatable $user): Recipe
     {
         $variation = $user->recipe()->create([
             'name' => $this->title ?? 'Untitled Variation',

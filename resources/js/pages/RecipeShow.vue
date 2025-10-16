@@ -4,7 +4,6 @@ import MyLayout from '@/layouts/MyLayout.vue';
 import { usePage } from '@inertiajs/vue3';
 import { computed, provide} from 'vue';
 import VariationMenu from '@/shared/Variation/VariationMenu.vue';
-import { useFlashToast } from '@/composables/useFlashToast';
 import { Recipe } from '@/interfaces/recipe';
 import { User } from '@/interfaces/user';
 
@@ -17,7 +16,7 @@ const page = usePage();
 const recipe = props.recipe;
 provide('recipe', recipe);
 
-useFlashToast();
+
 
 //get the user from the page props, casting to unknown first to resolve type mismatch
 const user = page.props.auth.user as unknown as User | null;
@@ -36,15 +35,23 @@ useHead({
 
 <template>
     <MyLayout>
-        <section class="mx-auto mt-8 w-3/4 p-6 text-left text-gray-900">
-            <h1 class="text-2xl font-bold">{{ recipe.name }}</h1>
-            <p class="mt-2 text-gray-700">Created by: {{ user?.name || 'Guest' }} {{ createdAtMessage }}</p>
-        </section>
-        <section class="mx-auto mt-4 w-3/4 rounded bg-white p-6 text-left text-gray-900 shadow">
-            <pre class="whitespace-pre-wrap">{{ recipe.description }}</pre>
-        </section>
-        <section v-if="user?.is_subscribed" id="variation-menu">
-            <VariationMenu :recipe_description="recipe.description" :ingredients="recipe.ingredients" />
-        </section>
+     <div class="flex flex-col md:flex-row">
+         <div class="flex-1 px-8">
+             <section class="mx-auto mt-8 w-full text-left text-gray-900">
+                 <h1 class="text-2xl font-bold">{{ recipe.name }}</h1>
+                 <p class="mt-2 text-gray-700">Created by: {{ user?.name || 'Guest' }} {{ createdAtMessage }}</p>
+             </section>
+             <section class="mx-auto mt-4 w-full rounded bg-white p-6 text-left text-gray-900 shadow">
+                 <pre class="whitespace-pre-wrap">{{ recipe.description }}</pre>
+             </section>
+             <section v-if="user?.is_subscribed" id="variation-menu">
+                 <VariationMenu :recipe_description="recipe.description" :ingredients="recipe.ingredients" />
+             </section>
+         </div>
+        <aside class="w-full md:w-1/4 bg-gray-100 p-6 shadow-lg shadow-gray-400/40">
+             This is a side bar
+         </aside>
+     </div>
+
     </MyLayout>
 </template>

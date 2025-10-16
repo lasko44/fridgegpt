@@ -59,6 +59,16 @@ function loginWithFacebook() {
                             aria-required="true"
                         />
                     </div>
+                    <div class="flex items-center">
+                        <input
+                            type="checkbox"
+                            id="remember"
+                            name="remember"
+                            class="mr-2 accent-teal-500 w-5 h-5 hover:cursor-pointer"
+                        />
+                        <label for="remember" class="text-gray-700 font-medium">Remember me</label>
+                    </div>
+
                     <button
                         type="submit"
                         class="rounded-xl hover:cursor-pointer bg-gradient-to-r from-teal-500 to-blue-500 px-4 py-2 text-lg font-bold text-white shadow transition hover:from-teal-600 hover:to-blue-600 focus:ring-2 focus:ring-blue-700 focus:outline-none"

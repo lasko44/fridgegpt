@@ -30,6 +30,7 @@ function logout() {
                     <InertiaLink href="/account" class="text-lg font-semibold text-white transition hover:cursor-pointer hover:text-cyan-200">
                         Account
                     </InertiaLink>
+                    <InertiaLink class="text-lg font-semibold text-white transition hover:cursor-pointer hover:text-cyan-200">My Recipes</InertiaLink>
                     <button
                         @click="logout"
                         class="ml-4 text-lg font-semibold text-white transition hover:cursor-pointer hover:text-cyan-200 focus:outline-none"

@@ -57,7 +57,7 @@ function cancel() {
                 <button
                     type="button"
                     @click="addIngredient"
-                    class="ml-2 rounded-full bg-blue-800 px-4 py-2 font-semibold text-white hover:bg-blue-900 focus:ring-2 focus:ring-blue-700 focus:outline-none"
+                    class="ml-2 rounded-full hover:cursor-pointer bg-blue-800 px-4 py-2 font-semibold text-white hover:bg-blue-900 focus:ring-2 focus:ring-blue-700 focus:outline-none"
                 >
                     Add
                 </button>
@@ -71,7 +71,7 @@ function cancel() {
                     {{ ing.name }}
                     <button
                         @click="removeIngredient(idx)"
-                        class="ml-2 text-gray-500 hover:text-red-500 focus:outline-none"
+                        class="ml-2 text-gray-500 hover:cursor-pointer hover:text-red-500 focus:outline-none"
                         aria-label="Remove ingredient"
                         type="button"
                         tabindex="0"
@@ -81,8 +81,8 @@ function cancel() {
                 </span>
             </div>
             <div class="flex justify-end gap-2">
-                <button @click="cancel" class="rounded bg-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-400">Cancel</button>
-                <button @click="save" class="rounded bg-blue-700 px-4 py-2 text-white hover:bg-blue-800">Save</button>
+                <button @click="cancel" class="rounded hover:cursor-pointer bg-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-400">Cancel</button>
+                <button @click="save" class="rounded hover:cursor-pointer bg-blue-700 px-4 py-2 text-white hover:bg-blue-800">Save</button>
             </div>
         </div>
     </div>

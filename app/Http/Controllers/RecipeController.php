@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class RecipeController extends Controller
 {
@@ -44,31 +45,39 @@ class RecipeController extends Controller
             if (!$user) {
                 $recipe = RecipeUtil::guestStore($ingredients, $ip);
                 $recipes = RecipeUtil::getGuestRecipes($ip);
+                $data = [
+                    'recipe' => $recipe->get(),
+                    'flash' => ['success' => 'Recipe created successfully!']
+                ];
             } elseif (!$user->is_subscribed) {
                 $recipe = RecipeUtil::standardStore($ingredients, $user);
                 $recipes = RecipeUtil::getStandardRecipes($user);
+                $data = [
+                    'recipe' => $recipe->get(),
+                    'flash' => ['success' => 'Recipe created successfully!']
+                ];
             } else {
                 $recipe = RecipeUtil::premiumStore($ingredients, $user);
                 $recipes = RecipeUtil::getPremiumRecipes($user);
-                return redirect()->route('home')->with([
+                $data = [
                     'paginated' => true,
                     'recipe' => $recipe->get(),
-                ]);
+                    'flash' => ['success' => 'Recipe created successfully!']
+                ];
             }
 
-            return redirect()->route('home')->with([
-                'recipe' => $recipe->get()
-            ]);
+            return redirect()->route('home')->with($data);
         } catch (Exception $e) {
             return redirect()->route('home')->withErrors([
                 'error' => $e->getMessage()
             ]);
         }
     }
+
     /**
      * Display the specified resource.
      */
-    public function show(Recipe $recipe)
+    public function show(Recipe $recipe): Response
     {
         $recipe->load('ingredients');
 

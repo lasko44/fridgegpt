@@ -39,7 +39,7 @@ function submit() {
 </script>
 
 <template>
-    <div class="mx-auto my-10 w-3/4 rounded bg-gray-50/50 shadow">
+    <div class="my-10 rounded bg-gray-50/50 shadow">
         <h2 class="shadow-b rounded-t bg-blue-700 p-3 text-xl font-bold text-white">Modify Recipe</h2>
         <div class="p-6">
             <IngredientVariation :ingredients="ingredients" v-model="form.ingredients" />
@@ -53,7 +53,7 @@ function submit() {
                 <button
                     type="submit"
                     @click="submit"
-                    class="mt-6 justify-end rounded bg-blue-700 px-6 py-2 text-white transition hover:bg-blue-800"
+                    class="mt-6 justify-end rounded hover:cursor-pointer bg-blue-700 px-6 py-2 text-white transition hover:bg-blue-800"
                     :disabled="form.processing"
                 >
                     Submit

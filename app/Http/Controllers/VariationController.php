@@ -46,7 +46,7 @@ class VariationController extends Controller
         } catch (Exception $e) {
             return back()->with([
                 'flash' => [
-                    'error' => 'An error occurred while generating variation: ' . $e->getMessage()
+                    'error' => 'An error occurred while generating variation'
                 ]
             ]);
         }

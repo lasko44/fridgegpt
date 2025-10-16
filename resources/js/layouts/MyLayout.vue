@@ -4,8 +4,10 @@ import Navigation from '@/shared/Navigation.vue';
 import ToastMessage from '@/shared/ToastMessage.vue';
 import { showToast, toastType, toastTitle, toastMessage } from '@/stores/toastStore';
 import type { ToastType } from '@/types/toast';
+import { useFlashToast } from '@/composables/useFlashToast';
 
 const loggedIn = false;
+useFlashToast();
 
 </script>
 

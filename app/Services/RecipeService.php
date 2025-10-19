@@ -288,10 +288,19 @@ class RecipeService
      */
     private function storeUserRecipe(User $user, RecipeService $recipe): void
     {
+        try {
+            $imageService = new UnSplashService();
+            $response = $imageService->searchPhotos($recipe->title());
+            $imageUrl = Arr::get($response, 'results.0.urls.full', null);
+
+        } catch (Exception $e) {
+            throw new Exception('Failed to fetch recipe image');
+        }
 
         $userRecipe = $user->recipe()->create([
             'name' => $recipe->title(),
             'slug' => ModelSlugger::slug(Recipe::class, $recipe->title()),
+            'image_url' => $imageUrl,
             'description' => $recipe->get(),
         ]);
 

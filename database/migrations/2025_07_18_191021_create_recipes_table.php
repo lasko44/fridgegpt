@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('name');
             $table->string('slug')->unique();
             $table->text('description');
+            $table->string('image_url')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

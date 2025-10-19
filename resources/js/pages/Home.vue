@@ -5,7 +5,7 @@ import { useHead } from '@vueuse/head';
 import CtaCard from '../shared/cta-card.vue';
 import Hero from '@/shared/Hero.vue';
 import SubscribeModal from '@/shared/SubscribeModal.vue';
-import RecipeList from '../shared/RecipeList.vue';
+import RecipeList from '../shared/RecipeList/RecipeList.vue';
 import ErrorModal from '@/shared/419ErrorModal.vue';
 import { usePage } from '@inertiajs/vue3';
 
@@ -79,7 +79,7 @@ onMounted(() => {
     <MyLayout>
         <Hero />
         <main aria-label="App Description" class="my-5 text-center text-lg text-gray-900" tabindex="0">
-            <div class="mx-auto mb-4 flex w-3/4 flex-col items-center">
+            <div class="mx-auto mb-4 flex w-3/4 flex-col items-center" v-show="!hasRecipes">
                 <header>
                     <h2 class="text-3xl font-extrabold">FridgeGPT Recipe Creator</h2>
                 </header>

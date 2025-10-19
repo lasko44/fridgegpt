@@ -18,26 +18,21 @@ function toggleMobile() {
 
 <template>
     <header class="bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500">
-        <nav class="mx-auto max-w-5xl px-4 sm:px-8 py-4 md:py-6 flex items-center justify-between">
+        <nav class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-8 md:py-6">
             <div class="flex items-center gap-6">
-                <InertiaLink href="/" class="text-2xl font-extrabold text-white drop-shadow-lg transition hover:text-cyan-200">
-                    FridgeGPT
+                <InertiaLink href="/" class="flex items-center gap-1 text-white hover:text-cyan-200">
+                    <img src="/images/logo.webp" alt="FridgeGPT logo" class="h-8 w-8 rounded-sm object-contain drop-shadow-lg sm:h-10 sm:w-10" />
+                    <span class="text-2xl leading-none font-extrabold drop-shadow-lg">FridgeGPT</span>
                 </InertiaLink>
 
                 <!-- Desktop Links -->
-                <div class="hidden md:flex items-center gap-6">
+                <div class="hidden items-center gap-6 md:flex">
                     <template v-if="!loggedIn">
-                        <InertiaLink href="/signup" class="text-lg font-semibold text-white transition hover:text-cyan-200">
-                            Sign Up
-                        </InertiaLink>
-                        <InertiaLink href="/login" class="text-lg font-semibold text-white transition hover:text-cyan-200">
-                            Login
-                        </InertiaLink>
+                        <InertiaLink href="/signup" class="text-lg font-semibold text-white transition hover:text-cyan-200"> Sign Up </InertiaLink>
+                        <InertiaLink href="/login" class="text-lg font-semibold text-white transition hover:text-cyan-200"> Login </InertiaLink>
                     </template>
                     <template v-else>
-                        <InertiaLink href="/account" class="text-lg font-semibold text-white transition hover:text-cyan-200">
-                            Account
-                        </InertiaLink>
+                        <InertiaLink href="/account" class="text-lg font-semibold text-white transition hover:text-cyan-200"> Account </InertiaLink>
                         <InertiaLink href="/recipes" class="text-lg font-semibold text-white transition hover:text-cyan-200">
                             My Recipes
                         </InertiaLink>
@@ -71,7 +66,7 @@ function toggleMobile() {
                 <!-- Mobile menu button -->
                 <button
                     @click="toggleMobile"
-                    class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
+                    class="inline-flex items-center justify-center rounded-md p-2 text-white focus:ring-2 focus:ring-white focus:outline-none md:hidden"
                     :aria-expanded="mobileOpen.toString()"
                     aria-label="Toggle navigation"
                 >
@@ -94,42 +89,34 @@ function toggleMobile() {
             leave-from-class="opacity-100 translate-y-0"
             leave-to-class="opacity-0 -translate-y-2"
         >
-            <div v-show="mobileOpen" class="md:hidden bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500">
-                <div class="px-4 pt-4 pb-6 space-y-4">
+            <div v-show="mobileOpen" class="bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 md:hidden">
+                <div class="space-y-4 px-4 pt-4 pb-6">
                     <template v-if="!loggedIn">
-                        <InertiaLink href="/signup" class="block text-white text-lg font-semibold hover:text-cyan-200">
-                            Sign Up
-                        </InertiaLink>
-                        <InertiaLink href="/login" class="block text-white text-lg font-semibold hover:text-cyan-200">
-                            Login
-                        </InertiaLink>
+                        <InertiaLink href="/signup" class="block text-lg font-semibold text-white hover:text-cyan-200"> Sign Up </InertiaLink>
+                        <InertiaLink href="/login" class="block text-lg font-semibold text-white hover:text-cyan-200"> Login </InertiaLink>
                     </template>
                     <template v-else>
-                        <InertiaLink href="/account" class="block text-white text-lg font-semibold hover:text-cyan-200">
-                            Account
-                        </InertiaLink>
-                        <InertiaLink href="/recipes" class="block text-white text-lg font-semibold hover:text-cyan-200">
-                            My Recipes
-                        </InertiaLink>
-                        <button
-                            @click="logout"
-                            class="w-full text-left text-white text-lg font-semibold hover:text-cyan-200 focus:outline-none"
-                        >
+                        <InertiaLink href="/account" class="block text-lg font-semibold text-white hover:text-cyan-200"> Account </InertiaLink>
+                        <InertiaLink href="/recipes" class="block text-lg font-semibold text-white hover:text-cyan-200"> My Recipes </InertiaLink>
+                        <button @click="logout" class="w-full text-left text-lg font-semibold text-white hover:text-cyan-200 focus:outline-none">
                             Logout
                         </button>
                     </template>
 
-                    <div class="pt-2 border-t border-white/20">
+                    <div class="border-t border-white/20 pt-2">
                         <template v-if="!loggedIn || !isPremium">
                             <InertiaLink
                                 href="/subscription/create"
-                                class="mt-3 inline-block w-full text-center rounded-full bg-yellow-300 px-4 py-2 font-bold text-teal-700 drop-shadow hover:bg-yellow-400"
+                                class="mt-3 inline-block w-full rounded-full bg-yellow-300 px-4 py-2 text-center font-bold text-teal-700 drop-shadow hover:bg-yellow-400"
                             >
                                 Go Premium – First Week Free
                             </InertiaLink>
                         </template>
                         <template v-else>
-                            <span class="mt-3 inline-block w-full text-center rounded-full bg-yellow-300 px-4 py-2 font-bold text-teal-700 drop-shadow">Premium</span>
+                            <span
+                                class="mt-3 inline-block w-full rounded-full bg-yellow-300 px-4 py-2 text-center font-bold text-teal-700 drop-shadow"
+                                >Premium</span
+                            >
                         </template>
                     </div>
                 </div>

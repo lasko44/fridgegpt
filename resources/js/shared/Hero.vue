@@ -4,13 +4,6 @@
         aria-label="Fridge gpt hero section"
     >
         <div class="flex flex-col items-center justify-center mb-6 w-full">
-            <img
-                src="images/logo.webp"
-                alt="Fridge gpt logo"
-                class="w-40 h-40 mb-[-1.5rem]"
-                aria-hidden="false"
-                tabindex="0"
-            />
             <h1 class="text-4xl md:text-6xl font-extrabold drop-shadow-lg" tabindex="0">
                 FridgeGPT
             </h1>

@@ -25,11 +25,11 @@ const recipeList = computed(() => {
             </thead>
             <tbody>
                 <tr v-for="recipe in recipeList" :key="recipe.id" class="hover:bg-gray-50">
-              <td class="border-t px-4 py-2 text-center">
-                  <a :href="route('recipe.show', recipe)" class="text-blue-600 hover:underline">
-                      {{ recipe.name }}
-                  </a>
-              </td>
+                    <td class="border-t px-4 py-2 text-center">
+                        <a :href="route('recipe.show', recipe)" class="text-blue-600 hover:underline">
+                            {{ recipe.name }}
+                        </a>
+                    </td>
                     <td class="border-t px-4 py-2 text-center text-gray-500">{{ recipe.created_at }}</td>
                 </tr>
                 <tr v-if="recipeList.length === 0">

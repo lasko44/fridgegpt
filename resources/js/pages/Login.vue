@@ -5,10 +5,11 @@ import MyLayout from '../layouts/MyLayout.vue';
 
 const email = ref('');
 const password = ref('');
+const remember = ref(false);
 const error = ref('');
 
 function loginWithEmail() {
-    router.post('/login', { email: email.value, password: password.value }, {
+    router.post('/login', { email: email.value, password: password.value, remember: remember.value }, {
         onError: (errors) => {
             error.value = errors.email || errors.password || 'Login failed.';
         }
@@ -62,6 +63,7 @@ function loginWithFacebook() {
                     <div class="flex items-center">
                         <input
                             type="checkbox"
+                            v-model="remember"
                             id="remember"
                             name="remember"
                             class="mr-2 accent-teal-500 w-5 h-5 hover:cursor-pointer"

@@ -21,7 +21,7 @@ import { Link } from '@inertiajs/vue3';
             </li>
             <li class="mb-2 flex items-center">
                 <span class="mr-2 text-green-300 drop-shadow">&#10003;</span>
-                <span class="drop-shadow">Favorite recipes</span>
+                <span class="drop-shadow">Portion Control</span>
             </li>
             <li class="mb-2 flex items-center">
                 <span class="mr-2 text-green-300 drop-shadow">&#10003;</span>

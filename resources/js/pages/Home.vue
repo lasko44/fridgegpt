@@ -90,17 +90,76 @@ onMounted(() => {
                     </p>
                 </section>
             </div>
+
             <section v-if="props.recipe" ref="recipeSection" class="mx-auto mt-8 w-3/4 rounded bg-white p-6 text-left text-gray-900 shadow">
                 <h2 class="mb-2 text-2xl font-bold">Your Recipe</h2>
                 <pre class="whitespace-pre-wrap">{{ props.recipe }}</pre>
             </section>
-            <div v-if="!premium" class="mt-10 flex flex-col items-center">
-                <CtaCard />
-            </div>
-            <div v-if="hasRecipes" class="mx-auto my-8 w-3/4">
-                <RecipeList :recipes="props.recipes" />
+
+            <!-- Main area with sidebar -->
+            <div class="mx-auto my-8 w-11/12">
+                <div class="flex flex-col md:flex-row gap-6">
+                    <!-- Primary content column -->
+                    <div class="flex-1">
+                        <div v-if="!premium" class="mt-10 flex flex-col items-center">
+                            <div class="mx-auto mb-4 flex w-3/4 flex-col items-center" v-show="hasRecipes">
+                                <header>
+                                    <h2 class="text-3xl font-extrabold">FridgeGPT Recipe Creator</h2>
+                                </header>
+                                <section>
+                                    <p>
+                                        Welcome! This app helps you create delicious recipes using any ingredients you have in your fridge or pantry. Simply enter
+                                        what you have, and we'll suggest a tasty, easy-to-follow recipe just for you.
+                                    </p>
+                                </section>
+                            </div>
+                            <CtaCard />
+                        </div>
+
+                        <div v-if="hasRecipes" class="my-8">
+                            <RecipeList :recipes="props.recipes" />
+                        </div>
+                    </div>
+
+                    <!-- Sidebar column -->
+                    <aside class="w-full md:w-80 bg-white rounded p-4 text-left text-gray-800 shadow">
+                        <h3 class="text-lg font-semibold mb-2">Sidebar</h3>
+                        <p class="text-sm text-gray-600 mb-4">Quick actions and recent items.</p>
+
+                        <div class="flex flex-col gap-2">
+                            <button
+                                class="w-full rounded bg-blue-600 text-white py-2 px-3 text-sm hover:bg-blue-700"
+                                @click="showModal = true"
+                            >
+                                Subscribe / Upgrade
+                            </button>
+
+                            <button
+                                v-if="!isLoggedIn"
+                                class="w-full rounded border border-gray-300 text-gray-700 py-2 px-3 text-sm"
+                                @click="showModal = true"
+                            >
+                                Sign in to save
+                            </button>
+                        </div>
+
+                        <div class="mt-4">
+                            <h4 class="font-medium text-sm mb-2">Recent Recipes</h4>
+                            <ul class="text-sm list-disc list-inside text-gray-600">
+                                <li
+                                    v-for="(r, i) in (Array.isArray(props.recipes) ? props.recipes : props.recipes?.data || [])"
+                                    :key="i"
+                                    class="truncate"
+                                >
+                                    {{ typeof r === 'string' ? r : r.title || r.name || 'Recipe' }}
+                                </li>
+                            </ul>
+                        </div>
+                    </aside>
+                </div>
             </div>
         </main>
+
         <ErrorModal v-if="show419ErrorModal" @close="handle419ModalClose" />
         <SubscribeModal v-if="showModal" :is-logged-in="isLoggedIn" @close="handleModalClose" />
     </MyLayout>

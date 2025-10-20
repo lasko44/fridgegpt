@@ -48,9 +48,6 @@ useHead({
                  <VariationMenu :recipe_description="recipe.description" :ingredients="recipe.ingredients" />
              </section>
          </div>
-        <aside class="w-full md:w-1/4 bg-gray-100 p-6 shadow-lg shadow-gray-400/40">
-             This is a side bar
-         </aside>
      </div>
 
     </MyLayout>

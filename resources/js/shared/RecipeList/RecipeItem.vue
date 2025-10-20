@@ -12,7 +12,7 @@ defineProps<{ recipe: Recipe }>();
             </figure>
             <div class="min-w-0 flex-1 flex items-center justify-between">
                 <h3 class="cursor-pointer truncate text-base font-medium text-blue-700 hover:underline mr-4">
-                    <a href="#" aria-label="View recipe">{{ recipe.name }}</a>
+                     {{ recipe.name }}
                 </h3>
                 <time :datetime="recipe.created_at" class="text-sm text-gray-500 flex-shrink-0">{{ recipe.created_at }}</time>
             </div>

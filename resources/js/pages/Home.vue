@@ -8,6 +8,7 @@ import SubscribeModal from '@/shared/SubscribeModal.vue';
 import RecipeList from '../shared/RecipeList/RecipeList.vue';
 import ErrorModal from '@/shared/419ErrorModal.vue';
 import { usePage } from '@inertiajs/vue3';
+import CtaBanner from '@/shared/CtaBanner.vue';
 
 useHead({
     title: 'FridgeGPT AI Recipe Creator',
@@ -91,7 +92,7 @@ onMounted(() => {
                 </section>
             </div>
 
-            <section v-if="props.recipe" ref="recipeSection" class="mx-auto mt-8 w-3/4 rounded bg-white p-6 text-left text-gray-900 shadow">
+            <section v-if="props.recipe" ref="recipeSection" class="mx-auto mt-8 w-11/12 rounded bg-white p-6 text-left text-gray-900 shadow">
                 <h2 class="mb-2 text-2xl font-bold">Your Recipe</h2>
                 <pre class="whitespace-pre-wrap">{{ props.recipe }}</pre>
             </section>
@@ -113,49 +114,15 @@ onMounted(() => {
                                     </p>
                                 </section>
                             </div>
-                            <CtaCard />
+                            <CtaCard v-if="!hasRecipes || !recipe"/>
+
                         </div>
 
                         <div v-if="hasRecipes" class="my-8">
+                            <CtaBanner v-if="recipe"/>
                             <RecipeList :recipes="props.recipes" />
                         </div>
                     </div>
-
-                    <!-- Sidebar column -->
-                    <aside class="w-full md:w-80 bg-white rounded p-4 text-left text-gray-800 shadow">
-                        <h3 class="text-lg font-semibold mb-2">Sidebar</h3>
-                        <p class="text-sm text-gray-600 mb-4">Quick actions and recent items.</p>
-
-                        <div class="flex flex-col gap-2">
-                            <button
-                                class="w-full rounded bg-blue-600 text-white py-2 px-3 text-sm hover:bg-blue-700"
-                                @click="showModal = true"
-                            >
-                                Subscribe / Upgrade
-                            </button>
-
-                            <button
-                                v-if="!isLoggedIn"
-                                class="w-full rounded border border-gray-300 text-gray-700 py-2 px-3 text-sm"
-                                @click="showModal = true"
-                            >
-                                Sign in to save
-                            </button>
-                        </div>
-
-                        <div class="mt-4">
-                            <h4 class="font-medium text-sm mb-2">Recent Recipes</h4>
-                            <ul class="text-sm list-disc list-inside text-gray-600">
-                                <li
-                                    v-for="(r, i) in (Array.isArray(props.recipes) ? props.recipes : props.recipes?.data || [])"
-                                    :key="i"
-                                    class="truncate"
-                                >
-                                    {{ typeof r === 'string' ? r : r.title || r.name || 'Recipe' }}
-                                </li>
-                            </ul>
-                        </div>
-                    </aside>
                 </div>
             </div>
         </main>

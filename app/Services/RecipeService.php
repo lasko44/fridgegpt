@@ -300,7 +300,7 @@ class RecipeService
         $userRecipe = $user->recipe()->create([
             'name' => $recipe->title(),
             'slug' => ModelSlugger::slug(Recipe::class, $recipe->title()),
-            'image_url' => $imageUrl,
+            'image_url' => $imageUrl ?? '/images/fridge_meal.png',
             'description' => $recipe->get(),
         ]);
 

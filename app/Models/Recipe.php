@@ -45,8 +45,7 @@ class Recipe extends Model
                 ->timezone(Cache::get('user_timezone', 'UTC'))
                 ->format(
                     Carbon::parse($value)->gt(Carbon::now()->subMinutes(5)) ? '\J\u\s\t\ \n\o\w' :
-                        (Carbon::parse($value)->isToday() ? '\T\o\d\a\y' :
-                            (Carbon::parse($value)->isYesterday() ? '\Y\e\s\t\e\r\d\a\y' : 'M d'))
+                        Carbon::parse($value)->format('Y-m-d')
                 )
         );
     }

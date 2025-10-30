@@ -48,6 +48,8 @@ class SubscriptionController extends Controller
             ->trialDays(7)
             ->create($paymentMethod);
 
+        $user->subscribe();
+
         return redirect()->route('home')
             ->with('success', 'Subscription created successfully!');
     }

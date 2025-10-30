@@ -37,7 +37,7 @@ async function fetchSetupIntentSecret() {
                 'Accept': 'application/json',
             },
             body: JSON.stringify({
-                user: page.props.auth?.user?.id,
+                user: page.props.auth?.user?.uuid,
             }),
             credentials: 'same-origin',
         });

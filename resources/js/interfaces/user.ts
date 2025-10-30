@@ -5,4 +5,5 @@ export interface User {
     is_subscribed: boolean;
     username: string;
     uuid: string;
+    pm_last_four: number | null;
 }

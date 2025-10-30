@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Laravel\Cashier\Billable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
@@ -32,9 +33,6 @@ class User extends Authenticatable
         'password',
         'remember_token',
         'id',
-        'email_verified_at',
-        'created_at',
-        'updated_at',
         'two_factor_secret',
         'two_factor_recovery_codes',
     ];
@@ -49,7 +47,17 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_subscribed' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (User $user) {
+            if (empty($user->uuid)) {
+                $user->uuid = (string) Str::uuid();
+            }
+        });
     }
 
     public function getRouteKeyName(): string
@@ -77,6 +85,13 @@ class User extends Authenticatable
     //endregion
 
     //region Functions
+
+    public function subscribe(): void
+    {
+        $this->is_subscribed = true;
+        $this->save();
+    }
+
     public function recipeCount(): int
     {
         return $this->recipe()->count();

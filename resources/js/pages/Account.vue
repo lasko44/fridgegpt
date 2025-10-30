@@ -2,6 +2,7 @@
 import MyLayout from '@/layouts/MyLayout.vue';
 import Profile from '@/shared/AccountComponents/Profile.vue';
 import { ref } from 'vue';
+import ManageSubscription from '@/shared/AccountComponents/ManageSubscription.vue';
 
 const profileSelected = ref(true);
 const subscriptionSelected = ref(false);
@@ -47,7 +48,7 @@ function updateSelection(selection: string) {
                 </div>
                 <div class="w-2/3">
                     <Profile v-if="profileSelected"/>
-
+                    <ManageSubscription v-if="subscriptionSelected"/>
                 </div>
 
             </div>

@@ -13,7 +13,9 @@ class StripeController extends Controller
 {
     public function store(Request $request): JsonResponse
     {
-        $user = User::find($request->input('user'));
+        $uuid = $request->input('user');
+        $user = User::query()->where('uuid', $uuid)->firstOrFail();
+
         $user->createOrGetStripeCustomer();
         $setupIntent = $user->createSetupIntent();
         return response()->json([

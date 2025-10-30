@@ -42,15 +42,24 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
-            'flash' => fn () => $request->session()->get('flash'),
+            'flash' => fn() => $request->session()->get('flash'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user()?->except([
+                        'subscriptions',
+                        'id',
+                        'remember_token',
+                        'password',
+                        'two_factor_secret',
+                        'two_factor_recovery_codes',
+                        'stripe_id',
+                        ''
+                    ]) ?? null,
             ],
             'ziggy' => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }
 }

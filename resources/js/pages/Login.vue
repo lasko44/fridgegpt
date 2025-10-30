@@ -2,6 +2,7 @@
 import { router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import MyLayout from '../layouts/MyLayout.vue';
+import {route} from 'ziggy-js'
 
 const email = ref('');
 const password = ref('');
@@ -79,6 +80,9 @@ function loginWithFacebook() {
                         Login with Email
                     </button>
                     <p v-if="error" class="text-center text-red-600 mt-2">{{ error }}</p>
+                    <a :href="route('forgot-password.index')" class="text-blue-600 hover:cursor-pointer hover:text-blue-700 hover:underline">
+                        Forgot Password
+                    </a>
                 </form>
                 <p class="mb-6 text-center" id="social-login-desc">Or login using:</p>
                 <div class="flex flex-col gap-4" aria-labelledby="social-login-desc">

@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\SignupController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\UserController;
@@ -42,3 +44,7 @@ Route::resource('signup', SignupController::class)->only('index', 'store');
 Route::get('/login', [LoginController::class, 'index'])->name('login');
 Route::post('/login', [LoginController::class, 'store'])->name('login.store');
 
+//Password reset routes
+Route::resource('forgot-password', ForgotPasswordController::class)->only('index', 'store');
+Route::get('reset-password/{token}', [ResetPasswordController::class, 'index'])->name('password.reset');
+Route::post('reset-password', [ResetPasswordController::class, 'store'])->name('password.update');

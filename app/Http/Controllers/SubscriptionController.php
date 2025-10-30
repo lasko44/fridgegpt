@@ -81,6 +81,8 @@ class SubscriptionController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $user = auth()->user();
+        $user->subscription('default')->cancel();
+
     }
 }

@@ -20,6 +20,7 @@ class HomeController extends Controller
         $recipes = !$user ? session('recipe') :
             ($user->is_subscribed ? RecipeUtil::getPremiumRecipes($user)
                 : RecipeUtil::getStandardRecipes($user));
+
         return Inertia::render('Home', [
             'recipe' => session('recipe'),
             'recipes' => $recipes,

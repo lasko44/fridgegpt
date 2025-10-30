@@ -1,11 +1,20 @@
 <script setup lang="ts">
 import { Link as InertiaLink, router, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
+import type { User } from '@/interfaces/user';
 
-const page = usePage();
+type PageProps = {
+    auth?: {
+        user?: User | null;
+    };
+} & Record<string, any>; // allow other Inertia props (ziggy, name, etc.)
+
+const page = usePage<PageProps>();
 const loggedIn = computed(() => !!page.props.auth?.user);
-const isPremium = computed(() => page.props.auth?.user?.is_subscribed);
+const isPremium = computed(() => !!page.props.auth?.user?.is_subscribed);
 const mobileOpen = ref(false);
+const user = computed<User | undefined>(() => page.props.auth?.user ?? undefined);
+
 
 function logout() {
     router.post('/logout');
@@ -32,7 +41,12 @@ function toggleMobile() {
                         <InertiaLink href="/login" class="text-lg font-semibold text-white transition hover:text-cyan-200"> Login </InertiaLink>
                     </template>
                     <template v-else>
-                        <InertiaLink href="/account" class="text-lg font-semibold text-white transition hover:text-cyan-200"> Account </InertiaLink>
+                        <InertiaLink
+                            :href="user ? route('user.edit', { user: user.username }) : '#'"
+                            class="text-lg font-semibold text-white transition hover:text-cyan-200"
+                        >
+                            Account
+                        </InertiaLink>
                         <InertiaLink href="/recipes" class="text-lg font-semibold text-white transition hover:text-cyan-200">
                             My Recipes
                         </InertiaLink>
@@ -67,7 +81,7 @@ function toggleMobile() {
                 <button
                     @click="toggleMobile"
                     class="inline-flex items-center justify-center rounded-md p-2 text-white focus:ring-2 focus:ring-white focus:outline-none md:hidden"
-                    :aria-expanded="mobileOpen.toString()"
+                    :aria-expanded="mobileOpen"
                     aria-label="Toggle navigation"
                 >
                     <svg v-if="!mobileOpen" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

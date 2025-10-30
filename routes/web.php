@@ -6,6 +6,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\SignupController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\VariationController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,7 @@ Route::resource('recipe', RecipeController::class)->only('store','show');
 Route::group(['middleware' => 'auth'], function () {
     Route::resource('subscription', SubscriptionController::class);
     Route::resource('variation', VariationController::class);
+    Route::get('/{user}/account', [UserController::class, 'edit'])->name('user.edit');
 });
 
 

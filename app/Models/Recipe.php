@@ -16,6 +16,11 @@ class Recipe extends Model
 
     protected $guarded = ['id'];
 
+    protected $hidden = [
+        'user_id',
+        'id',
+    ];
+
     //use the slug as the route key
     public function getRouteKeyName(): string
     {

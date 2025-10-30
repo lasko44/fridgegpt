@@ -98,7 +98,7 @@ onMounted(() => {
             </section>
 
             <!-- Main area with sidebar -->
-            <div class="mx-auto my-8 w-11/12">
+            <div class="mx-auto my-8 w-11/12 max-w-5xl">
                 <div class="flex flex-col md:flex-row gap-6">
                     <!-- Primary content column -->
                     <div class="flex-1">

@@ -31,6 +31,12 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'id',
+        'email_verified_at',
+        'created_at',
+        'updated_at',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     /**
@@ -46,7 +52,12 @@ class User extends Authenticatable
         ];
     }
 
-   //region Attributes
+    public function getRouteKeyName(): string
+    {
+        return 'username';
+    }
+
+    //region Attributes
     protected function isSubscribed(): Attribute
     {
         return Attribute::make(

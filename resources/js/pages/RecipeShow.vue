@@ -35,7 +35,7 @@ useHead({
 
 <template>
     <MyLayout>
-     <div class="flex flex-col md:flex-row">
+     <div class="flex flex-col md:flex-row max-w-5xl mx-auto">
          <div class="flex-1 px-8">
              <section class="mx-auto mt-8 w-full text-left text-gray-900">
                  <h1 class="text-2xl font-bold">{{ recipe.name }}</h1>

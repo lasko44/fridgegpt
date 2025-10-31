@@ -45,7 +45,7 @@ function generateRecipe() {
             <button
                 type="button"
                 @click="addIngredient"
-                class="ml-2 px-4 py-2 rounded-full bg-blue-800 text-white font-semibold hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-700"
+                class="ml-2 px-4 py-2 rounded-full bg-blue-800 text-white font-semibold hover:cursor-pointer hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-700"
             >
                 Add
             </button>
@@ -72,7 +72,7 @@ function generateRecipe() {
             v-if="ingredients.length >= 3"
             type="submit"
             :disabled="form.processing"
-            class="px-6 py-2 rounded-full bg-green-700 text-white font-semibold hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 mt-2"
+            class="px-6 py-2 rounded-full bg-green-700 text-white font-semibold hover:bg-green-800  hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500 mt-2"
         >
             {{ form.processing ? 'Submitting...' : 'Generate Recipe' }}
         </button>

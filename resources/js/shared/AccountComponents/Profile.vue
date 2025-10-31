@@ -1,29 +1,39 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/inertia-vue3';
+import { computed, reactive, inject } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import { User } from '@/interfaces/user';
 
-// get the provided user
-import { inject } from 'vue';
-import { User } from '@/types';
 const user = inject<User | null>('user');
 
-console.log(user);
+const initial = reactive({
+    name: user?.name ?? '',
+    username: user?.username ?? '',
+    email: user?.email ?? '',
+});
 
 const form = useForm({
-    name: user?.name ?? '',
-    email: user?.email ?? '',
-    password: '',
-    password_confirmation: '',
+    name: initial.name,
+    username: initial.username,
+    email: initial.email,
+});
+
+const hasChanges = computed(() => {
+    const trim = (s?: string) => (s ?? '').trim();
+    return (
+        trim(form.name) !== trim(initial.name) ||
+        trim(form.username) !== trim(initial.username) ||
+        trim(form.email) !== trim(initial.email)
+    );
 });
 
 function updateProfile() {
-    form.post('/user/profile', {
-        preserveState: true,
-    });
+    if (!hasChanges.value || form.processing) return;
+    form.put(route('user.update', user?.username));
 }
 </script>
 
 <template>
-    <section class="my-4">
+    <section class="bg-white p-4 rounded">
         <form @submit.prevent="updateProfile" class="space-y-4">
             <div>
                 <label class="block text-sm font-medium">Name</label>
@@ -58,36 +68,11 @@ function updateProfile() {
             </div>
 
             <div>
-                <label class="block text-sm font-medium">New password</label>
-                <input
-                    v-model="form.password"
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    autocomplete="password"
-                    class="w-full rounded border px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
-                    aria-required="true"
-                />
-                <p v-if="form.errors.password" class="mt-1 text-sm text-red-600">{{ form.errors.password }}</p>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium">Confirm password</label>
-                <input
-                    v-model="form.password_confirmation"
-                    id="password_confirmation"
-                    name="password_confirmation"
-                    type="password"
-                    required
-                    autocomplete="password_confirmation"
-                    class="w-full rounded border px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
-                    aria-required="true"
-                />
-            </div>
-
-            <div>
-                <button type="submit" :disabled="form.processing" class="rounded bg-blue-600 px-4 py-2 text-white">
+                <button
+                    type="submit"
+                    :disabled="form.processing || !hasChanges"
+                    class="rounded bg-blue-600 hover:bg-blue-700 px-4 py-2 text-white hover:cursor-pointer disabled:opacity-50"
+                >
                     <span v-if="form.processing">Saving...</span>
                     <span v-else>Save</span>
                 </button>

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -52,9 +54,21 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UserUpdateRequest $request, User $user)
     {
-        //
+        try{
+            $validated = $request->validated();
+            $user->update($validated);
+
+            session()->flash('flash.success', 'Account updated successfully.');
+            return Inertia::location(route('user.edit', $user));
+        }
+        catch (Exception $exception){
+            session()->flash('flash.error', 'An error occurred while updating the account. Please try again.');
+            return back();
+        }
+
+
     }
 
     /**

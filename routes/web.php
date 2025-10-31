@@ -31,6 +31,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('subscription', SubscriptionController::class);
     Route::resource('variation', VariationController::class);
     Route::get('/{user}/account', [UserController::class, 'edit'])->name('user.edit');
+    Route::put('/{user}/account', [UserController::class, 'update'])->name('user.update');
 });
 
 

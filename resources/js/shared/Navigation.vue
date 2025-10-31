@@ -29,7 +29,7 @@ function toggleMobile() {
     <header class="bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500">
         <nav class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-8 md:py-6">
             <div class="flex items-center gap-6">
-                <InertiaLink href="/" class="flex items-center gap-1 text-white hover:text-cyan-200">
+                <InertiaLink href="/" class="flex items-center gap-1 text-white hover:text-cyan-200 hover:cursor-pointer">
                     <img src="/images/logo.webp" alt="FridgeGPT logo" class="h-8 w-8 rounded-sm object-contain drop-shadow-lg sm:h-10 sm:w-10" />
                     <span class="text-2xl leading-none font-extrabold drop-shadow-lg">FridgeGPT</span>
                 </InertiaLink>
@@ -52,7 +52,7 @@ function toggleMobile() {
                         </InertiaLink>
                         <button
                             @click="logout"
-                            class="ml-2 text-lg font-semibold text-white transition hover:text-cyan-200 focus:outline-none"
+                            class="ml-2 text-lg font-semibold text-white hover:cursor-pointer transition hover:text-cyan-200 focus:outline-none"
                             aria-label="Logout"
                         >
                             Logout

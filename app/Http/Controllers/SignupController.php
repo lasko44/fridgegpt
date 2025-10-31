@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Facades\ModelSlugger;
 use App\Http\Requests\SignupRequest;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -25,11 +26,12 @@ class SignupController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     * @throws Exception
      */
     public function store(SignupRequest $request): RedirectResponse
     {
 
-        $user = User::create([
+        $user = User::query()->create([
             'name' => $request->name,
             'username' => ModelSlugger::slug(User::class, $request->name, 'username'),
             'email' => $request->email,

@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Services\SubscriptionService;
+use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 use Stripe\PaymentMethod;
@@ -81,10 +85,22 @@ class SubscriptionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $userId): RedirectResponse
     {
-        $user = auth()->user();
-        $user->subscription('default')->cancel();
+        try{
+            $user = auth()->user() ?? User::query()->findOrFail($userId);
+
+            $subscriptionService = new SubscriptionService($user);
+            $subscriptionService->cancel();
+
+            return redirect()->back()
+                ->with('flash.success', 'Subscription cancelled successfully!');
+        }
+        catch (Exception $exception){
+            Log::error($exception->getMessage());
+            return redirect()->back()
+                ->withErrors(['error' => 'Failed to cancel subscription: ']);
+        }
 
     }
 }

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
+use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -48,13 +50,14 @@ class UserController extends Controller
      */
     public function edit(User $user): Response
     {
+        dd($user->currentBillPeriodEnd()->toDate());
         return Inertia::render('Account', []);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UserUpdateRequest $request, User $user)
+    public function update(UserUpdateRequest $request, User $user): RedirectResponse|\Symfony\Component\HttpFoundation\Response
     {
         try{
             $validated = $request->validated();

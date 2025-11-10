@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Carbon\Carbon;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -90,6 +91,21 @@ class User extends Authenticatable
     {
         $this->is_subscribed = true;
         $this->save();
+    }
+
+    public function unsubscribe(): void
+    {
+        $this->is_subscribed = false;
+        $this->save();
+    }
+
+    public function currentBillPeriodEnd(): ?Carbon
+    {
+        if($this->subscription()){
+
+            return Carbon::parse($this->subscription()->asStripeSubscription()->current_period_end);
+        }
+        return null;
     }
 
     public function recipeCount(): int

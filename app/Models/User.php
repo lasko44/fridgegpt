@@ -5,6 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Carbon\Carbon;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -13,6 +15,9 @@ use Illuminate\Support\Str;
 use Laravel\Cashier\Billable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
+/**
+ * @mixin Builder
+ */
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, Billable;
@@ -24,7 +29,7 @@ class User extends Authenticatable
      */
     protected $guarded = ['id'];
 
-    protected $appends = ['is_subscribed'];
+    protected $appends = ['is_subscribed', 'bill_period_end'];
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -52,6 +57,10 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * @return void
+     * Boot the model.
+     */
     protected static function booted(): void
     {
         static::creating(function (User $user) {
@@ -73,6 +82,37 @@ class User extends Authenticatable
             get: fn () => $this->subscribed() && $this->subscriptions()->count() > 0,
         );
     }
+
+    protected function billPeriodEnd(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->currentBillPeriodEnd(),
+        );
+    }
+
+    //endregion
+
+    //region Scopes
+
+    /**
+     * Scope a query to only include users who have remove_subscribed_on as today.
+     */
+    #[Scope]
+    protected function toRemoveSubscribedToday( Builder $query): Builder
+    {
+        return $query->whereDate('remove_subscribed_on', now()->toDateString());
+    }
+
+    /**
+     * Scope a query to only include users who are to be removed this month.
+     */
+    #[Scope]
+    protected function toBeRemovedSubscribedThisMonth(Builder $query): Builder
+    {
+        return $query->whereDate('remove_subscribed_on', now()->toDateString());
+    }
+
+
 
     //endregion
 

@@ -57,7 +57,7 @@ class SubscriptionService
         if($this->isTrialing()){
             $this->user->remove_subscribed_on = $this->trialEndsAtDate();
         } else {
-            $this->user->remove_subscribed_on = Carbon::now()->addMonth();
+            $this->user->remove_subscribed_on = $this->user->currentBillPeriodEnd();
         }
     }
 }

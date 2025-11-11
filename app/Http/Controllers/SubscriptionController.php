@@ -94,7 +94,7 @@ class SubscriptionController extends Controller
             $subscriptionService->cancel();
 
             return redirect()->back()
-                ->with('flash.success', 'Subscription cancelled successfully!');
+                ->with(['flash.success', 'Subscription cancelled successfully!']);
         }
         catch (Exception $exception){
             Log::error($exception->getMessage());

@@ -44,20 +44,20 @@ function cancel() {
 
 <template>
     <div class="bg-opacity-40 fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-        <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
-            <h2 class="mb-4 text-lg font-bold">Edit Ingredients</h2>
+        <div class="w-full max-w-md rounded-xl bg-white dark:bg-[#222220] p-6 shadow-xl border border-[#EDE5DD] dark:border-[#3D3D39]">
+            <h2 class="mb-4 text-lg font-bold text-[#3A2520] dark:text-[#F3EDE6]">Edit Ingredients</h2>
             <div class="mb-4 flex">
                 <input
                     v-model="newIngredient"
                     @keydown.enter.prevent="addIngredient"
                     type="text"
                     placeholder="Add ingredient"
-                    class="w-full rounded-full border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:ring-2 focus:ring-blue-700 focus:outline-none"
+                    class="w-full rounded-full border border-[#EDE5DD] dark:border-[#3D3D39] bg-white dark:bg-gray-700 px-4 py-2 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-[#C27B5B] focus:outline-none"
                 />
                 <button
                     type="button"
                     @click="addIngredient"
-                    class="ml-2 rounded-full hover:cursor-pointer bg-blue-800 px-4 py-2 font-semibold text-white hover:bg-blue-900 focus:ring-2 focus:ring-blue-700 focus:outline-none"
+                    class="ml-2 rounded-full hover:cursor-pointer bg-[#C27B5B] px-4 py-2 font-semibold text-white hover:bg-[#A8664A] focus:ring-2 focus:ring-[#C27B5B] focus:outline-none"
                 >
                     Add
                 </button>
@@ -66,7 +66,7 @@ function cancel() {
                 <span
                     v-for="(ing, idx) in localIngredients"
                     :key="ing.name"
-                    class="flex items-center rounded-full bg-gray-200 px-4 py-1 text-gray-700"
+                    class="flex items-center rounded-full bg-[#EDE5DD] dark:bg-[#3D3D39] px-4 py-1 text-[#3A2520] dark:text-[#F3EDE6]"
                 >
                     {{ ing.name }}
                     <button
@@ -81,8 +81,8 @@ function cancel() {
                 </span>
             </div>
             <div class="flex justify-end gap-2">
-                <button @click="cancel" class="rounded hover:cursor-pointer bg-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-400">Cancel</button>
-                <button @click="save" class="rounded hover:cursor-pointer bg-blue-700 px-4 py-2 text-white hover:bg-blue-800">Save</button>
+                <button @click="cancel" class="rounded-full hover:cursor-pointer bg-[#EDE5DD] dark:bg-[#3D3D39] px-5 py-2 text-[#3A2520] dark:text-[#F3EDE6] hover:bg-gray-300 dark:hover:bg-gray-600 transition">Cancel</button>
+                <button @click="save" class="rounded-full hover:cursor-pointer bg-[#C27B5B] px-5 py-2 text-white hover:bg-[#A8664A] transition">Save</button>
             </div>
         </div>
     </div>

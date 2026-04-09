@@ -4,12 +4,11 @@ namespace App\Services;
 
 use App\Facades\ModelSlugger;
 use App\Models\Recipe;
-use App\Models\User;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Arr;
 
 class VariationService
@@ -22,18 +21,20 @@ class VariationService
     private ?int $recipeId = null;
     private ?string $recipeVariation = null;
     private ?string $title = null;
+    private EmbeddingService $embeddingService;
+
+    public function __construct()
+    {
+        $this->embeddingService = new EmbeddingService();
+    }
 
     /**
-     * @param array $data
-     * @return VariationService
      * @throws ConnectionException
      */
     public function generate(array $data): VariationService
     {
-        //set the class properties
         $this->setAllProperties($data);
         $this->call($data);
-
         return $this;
     }
 
@@ -42,82 +43,40 @@ class VariationService
      */
     public function store(Authenticatable $user): Recipe
     {
+        $ingredientList = implode(', ', $this->ingredients ?? []);
+
         $variation = $user->recipe()->create([
             'name' => $this->title ?? 'Untitled Variation',
             'slug' => ModelSlugger::slug(Recipe::class, $this->title ?? 'Untitled Variation'),
             'description' => $this->getRecipeVariation(),
             'is_variation' => true,
             'recipe_id' => $this->getRecipeId(),
+            'input_ingredients' => $ingredientList,
         ]);
-
 
         try {
             $variation->ingredients()->createMany($this->mapIngredients());
-            $variation->recipeRestriction()->createMany($this->mapRestrictons());
+            $variation->recipeRestriction()->createMany($this->mapRestrictions());
+
+            // Store embedding for RAG
+            try {
+                $embeddingText = "Recipe: {$this->title}. Ingredients: {$ingredientList}. {$this->getRecipeVariation()}";
+                $embedding = $this->embeddingService->embed($embeddingText);
+                $variation->setEmbedding($embedding);
+            } catch (Exception $e) {
+                Log::warning('Failed to store variation embedding', ['error' => $e->getMessage()]);
+            }
 
             return $variation;
         } catch (Exception $e) {
-
             $variation->forceDelete();
             throw new Exception('Failed to save Variation: ' . $e->getMessage());
         }
-
     }
 
-    // region Getters and Setters
-    public function getIngredients(): array
-    {
-        return $this->ingredients;
-    }
-
-    public function setIngredients(array $ingredients): void
-    {
-        $this->ingredients = $ingredients;
-    }
-
-    public function getRestrictions(): array
-    {
-        return $this->restrictions;
-    }
-
-    public function setRestrictions(array $restrictions): void
-    {
-        $this->restrictions = $restrictions;
-    }
-
-    public function getPortion(): string
-    {
-        return $this->portion;
-    }
-
-    public function setPortion(string $portion): void
-    {
-        $this->portion = $portion;
-    }
-
-    public function getServings(): int
-    {
-        return $this->servings;
-    }
-
-    public function setServings(int $servings): void
-    {
-        $this->servings = $servings;
-    }
-
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
-    public function getRecipeVariation()
+    public function getRecipeVariation(): ?string
     {
         return $this->recipeVariation;
-    }
-
-    public function setDescription(string $description): void
-    {
-        $this->description = $description;
     }
 
     public function getRecipeId(): int
@@ -125,39 +84,43 @@ class VariationService
         return $this->recipeId;
     }
 
-    public function setRecipeId(int $recipeId): void
-    {
-        $this->recipeId = $recipeId;
-    }
-
-
     public function setAllProperties(array $data): void
     {
-        $this->setIngredients(Arr::get($data, 'ingredients', []));
-        $this->setRestrictions(Arr::get($data, 'restrictions', []));
-        $this->setPortion(Arr::get($data, 'portion', ''));
-        $this->setServings(Arr::get($data, 'servings', 1));
-        $this->setDescription(Arr::get($data, 'recipe_description', ''));
-        $this->setRecipeId(Arr::get($data, 'recipe_id', 0));
+        $this->ingredients = Arr::get($data, 'ingredients', []);
+        $this->restrictions = Arr::get($data, 'restrictions', []);
+        $this->portion = Arr::get($data, 'portion', 'Single');
+        $this->servings = Arr::get($data, 'servings', 1);
+        $this->description = Arr::get($data, 'recipe_description', '');
+        $this->recipeId = Arr::get($data, 'recipe_id', 0);
     }
-    // endregion
 
     /**
-     * @param array $data
-     * @return void
      * @throws ConnectionException
      */
     private function call(array $data): void
     {
+        // RAG: find similar recipes for context
+        $ragContext = $this->retrieveSimilarRecipes();
+
+        $systemPrompt = "You are a creative chef AI that creates recipe variations. You modify existing recipes based on dietary restrictions, portion sizes, and ingredient changes.";
+
+        if ($ragContext) {
+            $systemPrompt .= "\n\nHere are some similar recipes for inspiration:\n\n" . $ragContext;
+        }
+
         $response = Http::retry(3, 2000)->withHeaders([
-            'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
+            'Authorization' => 'Bearer ' . config('ai.openai_api_key'),
             'Content-Type' => 'application/json',
         ])->post('https://api.openai.com/v1/chat/completions', [
-            'model' => 'gpt-3.5-turbo',
+            'model' => 'gpt-4o-mini',
             'messages' => [
                 [
+                    'role' => 'system',
+                    'content' => $systemPrompt,
+                ],
+                [
                     'role' => 'user',
-                    'content' => $this->createMessage($data),
+                    'content' => $this->createMessage(),
                 ],
             ],
         ]);
@@ -166,39 +129,57 @@ class VariationService
         $this->title = $this->extractTitle($this->recipeVariation);
     }
 
-    /**
-     * @param array $data
-     * @return string
-     */
-    private function createMessage(array $data): string
+    private function retrieveSimilarRecipes(): ?string
     {
-        $portion = $this->portion;
-        $servings = $this->servings;
-        $description = $this->description;
+        try {
+            $ingredientList = implode(', ', $this->ingredients ?? []);
+            if (empty($ingredientList)) return null;
 
-        $ingredients = Arr::join($this->ingredients, "\n- ", '', '');
-        $restrictions = Arr::join($this->restrictions, "\n- ", '', '');
+            $embedding = $this->embeddingService->embed("Recipe ingredients: " . $ingredientList);
+            $similar = Recipe::findSimilar($embedding, 3, 0.35);
+
+            if (empty($similar)) return null;
+
+            $context = '';
+            foreach ($similar as $i => $recipe) {
+                $num = $i + 1;
+                $context .= "--- Recipe {$num} ---\n";
+                $context .= "Title: {$recipe->name}\n";
+                $context .= "{$recipe->description}\n\n";
+            }
+            return $context;
+        } catch (Exception $e) {
+            Log::warning('RAG retrieval failed for variation', ['error' => $e->getMessage()]);
+            return null;
+        }
+    }
+
+    private function createMessage(): string
+    {
+        $ingredients = implode(', ', $this->ingredients ?? []);
+        $restrictions = implode(', ', $this->restrictions ?? []);
 
         return "Create a variation of the following recipe.
-        Portion: {$portion}
-        Servings: {$servings}
 
-        Recipe Description:
-        {$description}
+Portion size: {$this->portion}
+Number of servings: {$this->servings}
 
-        Ingredients:
-        - {$ingredients}
+Original Recipe:
+{$this->description}
 
-        Dietary Restrictions to consider:
-        - {$restrictions}
+Available Ingredients: {$ingredients}
+" . ($restrictions ? "Dietary Restrictions: {$restrictions}" : '') . "
 
-        Please provide a new recipe variation that fits these restrictions and uses the listed ingredients.
-        Format the title the recipe like Title: <Recipe Title>.
-        provide a list of ingredients like this Ingredients:
-        followed by step-by-step cooking instructions.
-        List the restrictions like Restrictions: Then list portion sizes number of servings and if kitchen
-        staples are included.";
+Provide the variation using this format:
+Title: [New Recipe Title]
 
+Ingredients:
+- [ingredient 1]
+- [ingredient 2]
+
+Instructions:
+1. [Step 1]
+2. [Step 2]";
     }
 
     /**
@@ -207,27 +188,18 @@ class VariationService
     private function extractTitle(string $input): ?string
     {
         if (preg_match('/Title:\s*(.+)/', $input, $matches)) {
-            $title = trim($matches[1]);
-            $this->title = $title;
-            return $title;
+            return trim($matches[1]);
         }
-        throw new Exception('Title not not Extracted from AI response');
+        throw new Exception('Title not extracted from AI response');
     }
 
-    private function mapRestrictons(): array
+    private function mapRestrictions(): array
     {
-        return array_map(function ($restriction) {
-            return ['name' => $restriction];
-        }, $this->restrictions ?? []);
-
+        return array_map(fn($r) => ['name' => $r], $this->restrictions ?? []);
     }
 
-    private function mapIngredients()
+    private function mapIngredients(): array
     {
-        return array_map(function ($ingredient) {
-            return ['name' => $ingredient];
-        }, $this->ingredients ?? []);
+        return array_map(fn($i) => ['name' => $i], $this->ingredients ?? []);
     }
-
-
 }

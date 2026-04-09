@@ -44,16 +44,13 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'flash' => fn() => $request->session()->get('flash'),
             'auth' => [
-                'user' => $request->user()?->except([
-                        'subscriptions',
-                        'id',
-                        'remember_token',
-                        'password',
-                        'two_factor_secret',
-                        'two_factor_recovery_codes',
-                        'stripe_id',
-                        ''
-                    ]) ?? null,
+                'user' => $request->user() ? [
+                    'uuid' => $request->user()->uuid,
+                    'name' => $request->user()->name,
+                    'username' => $request->user()->username,
+                    'email' => $request->user()->email,
+                    'token_balance' => $request->user()->token_balance,
+                ] : null,
             ],
             'ziggy' => [
                 ...(new Ziggy)->toArray(),

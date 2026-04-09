@@ -42,8 +42,8 @@ function submit() {
 
 <template>
     <MyLayout>
-        <main>
-            <section class="mx-auto my-10 max-w-md rounded bg-white p-8 text-gray-900 shadow" aria-labelledby="reset-heading">
+        <main role="main">
+            <section class="mx-auto my-10 max-w-md rounded bg-white dark:bg-[#222220] p-8 text-gray-900 dark:text-gray-100 shadow" aria-labelledby="reset-heading">
                 <h1 id="reset-heading" class="mb-6 text-center text-3xl font-bold">Reset Password</h1>
 
                 <form @submit.prevent="submit" class="mb-8 flex flex-col gap-4" role="form" aria-describedby="reset-desc">
@@ -52,7 +52,7 @@ function submit() {
                     <input type="hidden" v-model="token" />
 
                     <div>
-                        <label for="email" class="mb-1 block font-medium text-gray-700">Email</label>
+                        <label for="email" class="mb-1 block font-medium text-[#3A2520] dark:text-[#C9B8A6]">Email</label>
                         <input
                             v-model="email"
                             id="email"
@@ -61,14 +61,14 @@ function submit() {
                             placeholder="Email"
                             required
                             autocomplete="email"
-                            class="w-full rounded border px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                            class="w-full rounded border border-[#EDE5DD] dark:border-[#3D3D39] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
                             aria-required="true"
                         />
                         <div v-if="errors.email" class="mt-1 text-sm text-red-600">{{ errors.email[0] }}</div>
                     </div>
 
                     <div>
-                        <label for="password" class="mb-1 block font-medium text-gray-700">New password</label>
+                        <label for="password" class="mb-1 block font-medium text-[#3A2520] dark:text-[#C9B8A6]">New password</label>
                         <input
                             v-model="password"
                             id="password"
@@ -77,14 +77,14 @@ function submit() {
                             placeholder="New password"
                             required
                             autocomplete="new-password"
-                            class="w-full rounded border px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                            class="w-full rounded border border-[#EDE5DD] dark:border-[#3D3D39] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
                             aria-required="true"
                         />
                         <div v-if="errors.password" class="mt-1 text-sm text-red-600">{{ errors.password[0] }}</div>
                     </div>
 
                     <div>
-                        <label for="password_confirmation" class="mb-1 block font-medium text-gray-700">Confirm password</label>
+                        <label for="password_confirmation" class="mb-1 block font-medium text-[#3A2520] dark:text-[#C9B8A6]">Confirm password</label>
                         <input
                             v-model="passwordConfirmation"
                             id="password_confirmation"
@@ -93,7 +93,7 @@ function submit() {
                             placeholder="Confirm password"
                             required
                             autocomplete="new-password"
-                            class="w-full rounded border px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                            class="w-full rounded border border-[#EDE5DD] dark:border-[#3D3D39] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
                             aria-required="true"
                         />
                     </div>
@@ -108,7 +108,7 @@ function submit() {
 
                     <p v-if="error" class="mt-2 text-center text-red-600">{{ error }}</p>
 
-                    <a :href="route('login')" class="text-blue-600 hover:cursor-pointer hover:text-blue-700 hover:underline"> Back to Login </a>
+                    <a :href="route('login')" class="text-blue-600 dark:text-blue-400 hover:cursor-pointer hover:text-blue-700 dark:hover:text-blue-300 hover:underline" aria-label="Back to Login"> Back to Login </a>
                 </form>
             </section>
         </main>

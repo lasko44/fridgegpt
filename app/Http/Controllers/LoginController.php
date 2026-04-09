@@ -2,41 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Inertia\Response;
 
+/**
+ * Controller for handling user login web requests.
+ */
 class LoginController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display the login form.
      */
-    public function index()
+    public function index(): Response
     {
         return Inertia::render('Login');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Handle a login request.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(LoginRequest $request): RedirectResponse
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+        $request->authenticate();
 
-        $remember = $request->boolean('remember');
-        
-        if (Auth::attempt($credentials, $remember)) {
-            $request->session()->regenerate();
-            return redirect()->intended('/');
-        }
+        $request->session()->regenerate();
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
+        return redirect()->intended('/');
     }
-
 }

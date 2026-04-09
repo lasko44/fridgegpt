@@ -21,7 +21,7 @@ provide('user', user.value);
     <div class="flex min-h-screen flex-col">
         <Navigation :logged-in="loggedIn" />
         <ToastMessage :type="toastType as ToastType" :title="toastTitle" :message="toastMessage" :show="showToast" />
-        <main class="flex-1 bg-gray-100 text-gray-800">
+        <main id="main-content" class="flex-1 bg-[#FBF5F0] text-[#3A2520] dark:bg-[#1A1A18] dark:text-[#E8E0D4]" tabindex="-1">
             <slot />
         </main>
         <Footer />

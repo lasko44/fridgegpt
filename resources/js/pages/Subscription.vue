@@ -131,26 +131,27 @@ async function submitSubscription() {
 
 <template>
     <MyLayout>
-        <main>
+        <main role="main">
             <section v-if="isSubscribed">
                 <Subscribed />
             </section>
-            <section v-else class="mx-auto my-10 w-1/2 rounded bg-white p-8 text-gray-900 shadow" aria-labelledby="subscription-heading">
+            <section v-else class="mx-auto my-10 w-1/2 rounded bg-white dark:bg-[#222220] p-8 text-gray-900 dark:text-gray-100 shadow" aria-labelledby="subscription-heading">
                 <h1 id="subscription-heading" class="mb-4 text-center text-3xl font-bold">Subscribe</h1>
                 <div class="mb-6 flex justify-center">
-                    <div class="rounded-full bg-gradient-to-r from-teal-500 to-blue-500 px-6 py-2 text-2xl font-extrabold text-yellow-300 shadow-lg">
+                    <div class="rounded-full bg-emerald-500 px-6 py-2 text-2xl font-extrabold text-emerald-400 shadow-lg">
                         $3.99<span class="ml-1 text-base font-semibold text-white">/month</span>
                     </div>
                 </div>
                 <form @submit.prevent="submitSubscription" class="flex flex-col gap-4" role="form">
                     <div>
-                        <label class="mb-1 block font-medium text-gray-700">Payment Details</label>
-                        <div ref="paymentElementMount" class="w-full rounded border bg-gray-50 px-4 py-2"></div>
+                        <label class="mb-1 block font-medium text-[#3A2520] dark:text-[#C9B8A6]" id="payment-details-label">Payment Details</label>
+                        <div ref="paymentElementMount" class="w-full rounded border border-[#EDE5DD] dark:border-[#3D3D39] bg-[#FBF5F0] dark:bg-gray-700 px-4 py-2" aria-labelledby="payment-details-label"></div>
                     </div>
                     <button
                         type="submit"
                         :disabled="form.processing"
-                        class="rounded-xl bg-gradient-to-r from-teal-500 to-blue-500 px-4 py-2 text-lg font-bold text-white shadow transition hover:cursor-pointer hover:from-teal-600 hover:to-blue-600 focus:ring-2 focus:ring-blue-700 focus:outline-none"
+                        class="rounded-xl bg-emerald-500 px-4 py-2 text-lg font-bold text-white shadow transition hover:cursor-pointer hover:bg-emerald-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                        aria-label="Start 1 Week Free Trial"
                     >
                         {{ form.processing ? 'Processing...' : 'Start 1 Week Free Trial' }}
                     </button>
@@ -158,9 +159,9 @@ async function submitSubscription() {
                 </form>
                 <div class="mt-6">
                     <div v-if="showPrButton" ref="prButtonMount"></div>
-                    <div v-else class="text-center text-sm text-gray-500">Apple Pay / Google Pay not available on this device or browser.</div>
+                    <div v-else class="text-center text-sm text-[#6B5C55] dark:text-[#C9B8A6]">Apple Pay / Google Pay not available on this device or browser.</div>
                 </div>
-                <p class="mt-4 text-center text-gray-600">You will not be charged until your free trial ends.</p>
+                <p class="mt-4 text-center text-[#6B5C55] dark:text-[#C9B8A6]">You will not be charged until your free trial ends.</p>
             </section>
         </main>
     </MyLayout>

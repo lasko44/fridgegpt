@@ -2,86 +2,53 @@
 
 namespace App\Http\Controllers;
 
-use App\Facades\Variation;
 use App\Http\Requests\VariationRequest;
+use App\Models\Recipe;
+use App\Services\TokenService;
+use App\Services\VariationService;
 use Exception;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
 
 class VariationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function store(VariationRequest $request, TokenService $tokenService): RedirectResponse
     {
-        //
-    }
+        $user = Auth::user();
+        $data = $request->validated();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(VariationRequest $request): \Symfony\Component\HttpFoundation\Response
-    {
-        try {
-            $variation = Variation::generate($request->validated());
-            $recipe = $variation->store(Auth::user());
-
-            session()->flash('flash', [
-                'success' => 'Variation generated successfully!'
-            ]);
-
-            return Inertia::location(route('recipe.show', $recipe->slug));
-        } catch (Exception $e) {
-            return back()->with([
-                'flash' => [
-                    'error' => 'An error occurred while generating variation'
-                ]
-            ]);
+        // Check tokens first
+        if (!$tokenService->hasTokensFor($user, 'variation')) {
+            return back()
+                ->withErrors(['error' => 'You\'re out of tokens! Buy more to create variations.'])
+                ->with('flash', ['error' => 'Insufficient tokens.']);
         }
-    }
 
+        // Resolve slug to id
+        if (isset($data['recipe_slug'])) {
+            $recipe = Recipe::where('slug', $data['recipe_slug'])->firstOrFail();
+            $data['recipe_id'] = $recipe->id;
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        try {
+            $service = new VariationService();
+            $variation = $service->generate($data);
+            $newRecipe = $variation->store($user);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+            // Spend token after successful generation
+            $tokenService->spend($user, 'variation', [
+                'recipe_id' => $newRecipe->id,
+                'parent_recipe_id' => $data['recipe_id'] ?? null,
+            ]);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+            return redirect()->route('recipe.show', $newRecipe->slug)
+                ->with('flash', ['success' => 'Variation created!']);
+        } catch (Exception $e) {
+            Log::error('Variation failed', ['error' => $e->getMessage()]);
+            return back()
+                ->withErrors(['error' => $e->getMessage()])
+                ->with('flash', ['error' => 'Failed to generate variation: ' . $e->getMessage()]);
+        }
     }
 }

@@ -23,8 +23,7 @@ class VariationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        //check if auth user is premium
-        return $this->user() && $this->user()->is_subscribed;
+        return $this->user() !== null;
     }
 
     /**
@@ -42,7 +41,7 @@ class VariationRequest extends FormRequest
             'servings' => ['integer', 'min:1', 'max:20'],
             'kitchen_staples' => ['boolean'],
             'recipe_description' => ['required', 'string', 'max:4000'],
-            'recipe_id' => ['required', 'integer', 'exists:recipes,id']
+            'recipe_slug' => ['required', 'string', 'exists:recipes,slug']
         ];
     }
 }

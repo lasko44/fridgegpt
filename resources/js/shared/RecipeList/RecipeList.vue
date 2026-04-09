@@ -15,9 +15,9 @@ const recipeList = computed(() => {
 </script>
 
 <template>
-    <div class="overflow-x-auto">
-        <h4 class="my-4 text-2xl font-bold">Your Recent Recipes</h4>
-        <ul class="min-w-full rounded-lg">
+    <div class="overflow-x-auto" role="region" aria-label="Recipe list">
+        <h4 class="my-4 text-2xl font-bold text-[#3A2520] dark:text-[#F3EDE6]">Your Recent Recipes</h4>
+        <ul class="min-w-full rounded-lg" role="list">
            <li v-for="recipe in recipeList" :key="recipe.id" class="py-2">
                 <RecipeItem :recipe="recipe" />
               </li>

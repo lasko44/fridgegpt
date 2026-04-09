@@ -2,71 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Facades\RecipeUtil;
+use App\Http\Requests\Recipe\StoreRecipeRequest;
 use App\Models\Recipe;
-use App\Models\User;
+use App\Services\RecipeService;
 use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * Controller for handling recipe-related web requests.
+ */
 class RecipeController extends Controller
 {
-
-
     /**
-     * Display a listing of the resource.
+     * Store a newly created recipe in storage.
      */
-    public function index()
+    public function store(StoreRecipeRequest $request, RecipeService $recipeService): RedirectResponse
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): object
-    {
-        $user = $request->user();
-        $ingredients = $request->input('ingredients');
-        $ip = $request->ip();
-
         try {
-            if (!$user) {
-                $recipe = RecipeUtil::guestStore($ingredients, $ip);
-                $recipes = RecipeUtil::getGuestRecipes($ip);
-                $data = [
-                    'recipe' => $recipe->get(),
-                    'flash' => ['success' => 'Recipe created successfully!']
-                ];
-            } elseif (!$user->is_subscribed) {
-                $recipe = RecipeUtil::standardStore($ingredients, $user);
-                $recipes = RecipeUtil::getStandardRecipes($user);
-                $data = [
-                    'recipe' => $recipe->get(),
-                    'flash' => ['success' => 'Recipe created successfully!']
-                ];
-            } else {
-                $recipe = RecipeUtil::premiumStore($ingredients, $user);
-                $recipes = RecipeUtil::getPremiumRecipes($user);
-                $data = [
-                    'paginated' => true,
-                    'recipe' => $recipe->get(),
-                    'flash' => ['success' => 'Recipe created successfully!']
-                ];
-            }
+            $result = $recipeService->createRecipeForUser(
+                $request->getIngredients(),
+                $request->user(),
+                $request->ip(),
+                $request->getRestrictions(),
+                $request->only(['servings', 'portion', 'include_staples', 'allow_extras'])
+            );
 
-            return redirect()->route('home')->with($data);
+            return redirect()->route('home')
+                ->with('recipe', $result['recipe'])
+                ->with('structured', $result['structured'] ?? null)
+                ->with('flash', $result['flash'] ?? []);
         } catch (Exception $e) {
             return redirect()->route('home')->withErrors([
                 'error' => $e->getMessage()
@@ -75,38 +42,40 @@ class RecipeController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified recipe.
      */
     public function show(Recipe $recipe): Response
     {
+        Gate::authorize('view', $recipe);
         $recipe->load('ingredients');
 
+        // Load parent recipe info for variations
+        $parentRecipe = null;
+        if ($recipe->is_variation && $recipe->recipe_id) {
+            $parent = Recipe::find($recipe->recipe_id);
+            if ($parent) {
+                $parentRecipe = ['name' => $parent->name, 'slug' => $parent->slug];
+            }
+        }
+
         return Inertia::render('RecipeShow', [
-            'recipe' => $recipe,
+            'recipe' => array_merge($recipe->toArray(), [
+                'id' => $recipe->id,
+                'is_variation' => (bool) $recipe->is_variation,
+                'parent_recipe' => $parentRecipe,
+            ]),
         ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Remove the specified recipe from storage.
      */
-    public function edit($user, Recipe $recipe = null)
+    public function destroy(Recipe $recipe): RedirectResponse
     {
+        Gate::authorize('delete', $recipe);
 
-    }
+        $recipe->delete();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Recipe $recipe)
-    {
-        //implement the update logic here
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Recipe $recipe)
-    {
-        //
+        return redirect()->route('home')->with('success', 'Recipe deleted successfully.');
     }
 }

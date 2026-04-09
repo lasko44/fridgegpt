@@ -33,35 +33,35 @@ function updateProfile() {
 </script>
 
 <template>
-    <section class="bg-white p-4 rounded">
-        <form @submit.prevent="updateProfile" class="space-y-4">
+    <section class="rounded-2xl bg-white dark:bg-[#222220] border border-[#EDE5DD] dark:border-[#3D3D39] p-6 shadow-sm">
+        <form @submit.prevent="updateProfile" class="space-y-5">
             <div>
-                <label class="block text-sm font-medium">Name</label>
+                <label for="name" class="mb-1.5 block text-sm font-medium text-[#3A2520] dark:text-[#C9B8A6]">Name</label>
                 <input
                     v-model="form.name"
                     id="name"
                     name="name"
                     type="text"
-                    placeholder="Name"
+                    placeholder="Your name"
                     required
                     autocomplete="name"
-                    class="w-full rounded border px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                    class="w-full rounded-xl border border-[#EDE5DD] dark:border-[#3D3D39] bg-[#FBF5F0] dark:bg-[#2E2E2B] text-[#3A2520] dark:text-[#E8E0D4] placeholder-[#B0A196] px-4 py-3 text-sm focus:ring-2 focus:ring-[#C27B5B] focus:border-transparent focus:outline-none"
                     aria-required="true"
                 />
                 <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</p>
             </div>
 
             <div>
-                <label class="block text-sm font-medium">Email</label>
+                <label for="email" class="mb-1.5 block text-sm font-medium text-[#3A2520] dark:text-[#C9B8A6]">Email</label>
                 <input
                     v-model="form.email"
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="Email"
+                    placeholder="you@example.com"
                     required
                     autocomplete="email"
-                    class="w-full rounded border px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                    class="w-full rounded-xl border border-[#EDE5DD] dark:border-[#3D3D39] bg-[#FBF5F0] dark:bg-[#2E2E2B] text-[#3A2520] dark:text-[#E8E0D4] placeholder-[#B0A196] px-4 py-3 text-sm focus:ring-2 focus:ring-[#C27B5B] focus:border-transparent focus:outline-none"
                     aria-required="true"
                 />
                 <p v-if="form.errors.email" class="mt-1 text-sm text-red-600">{{ form.errors.email }}</p>
@@ -71,7 +71,7 @@ function updateProfile() {
                 <button
                     type="submit"
                     :disabled="form.processing || !hasChanges"
-                    class="rounded bg-blue-600 hover:bg-blue-700 px-4 py-2 text-white hover:cursor-pointer disabled:opacity-50"
+                    class="rounded-xl bg-[#C27B5B] hover:bg-[#A8664A] px-6 py-3 text-sm font-semibold text-white transition hover:cursor-pointer focus:ring-2 focus:ring-[#C27B5B] focus:outline-none disabled:opacity-50"
                 >
                     <span v-if="form.processing">Saving...</span>
                     <span v-else>Save</span>

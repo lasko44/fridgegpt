@@ -44,4 +44,13 @@ return [
         'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
         'redirect' => env('FACEBOOK_REDIRECT_URI'),
     ],
+
+    'usda' => [
+        'api_key' => env('USDA_API_KEY', 'DEMO_KEY'),
+        'base_url' => 'https://api.nal.usda.gov/fdc/v1',
+    ],
+
+    'openfoodfacts' => [
+        'base_url' => 'https://world.openfoodfacts.org/api/v2',
+    ],
 ];

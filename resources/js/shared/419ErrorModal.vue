@@ -1,14 +1,45 @@
-vue
-<script setup>
-const emit = defineEmits(['close']);
+<script setup lang="ts">
+import { ref } from 'vue'
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { AlertCircle } from 'lucide-vue-next'
+
+const emit = defineEmits(['close'])
+const open = ref(true)
+
+function handleOpenChange(value: boolean) {
+    if (!value) {
+        emit('close')
+    }
+}
 </script>
 
 <template>
-    <div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded shadow text-center w-full max-w-md">
-            <h2 class="text-2xl font-semibold mb-2 text-red-600">Oops</h2>
-            <p class="mb-6 text-gray-700">Something went wrong. Try reloading the page.</p>
-            <button @click="emit('close')" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Close</button>
-        </div>
-    </div>
+    <Dialog :open="open" @update:open="handleOpenChange">
+        <DialogContent class="max-w-md">
+            <DialogHeader class="text-center">
+                <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                    <AlertCircle class="h-6 w-6 text-red-600" />
+                </div>
+                <DialogTitle class="text-2xl font-semibold text-red-600">
+                    Oops
+                </DialogTitle>
+                <DialogDescription class="text-gray-700">
+                    Something went wrong. Try reloading the page.
+                </DialogDescription>
+            </DialogHeader>
+            <DialogFooter class="justify-center">
+                <Button @click="emit('close')" variant="default">
+                    Close
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
 </template>

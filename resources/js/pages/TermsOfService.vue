@@ -5,7 +5,7 @@ import { Link } from '@inertiajs/vue3'
 
 <template>
     <MyLayout>
-        <div class="max-w-2xl mx-auto p-6 bg-white rounded shadow text-gray-900">
+        <div class="max-w-2xl mx-auto p-6 bg-white dark:bg-[#222220] rounded shadow text-gray-900 dark:text-gray-100" role="main" aria-label="Terms of Service">
             <h1 class="text-3xl font-bold mb-4">Terms of Service</h1>
             <p class="mb-4">
                 By using FridgeGPT, you agree to comply with these Terms of Service. Please read them carefully before using our app.
@@ -29,7 +29,7 @@ import { Link } from '@inertiajs/vue3'
             <p class="mb-8">
                 If you have any questions about these terms, please contact us.
             </p>
-            <Link href="/" class="text-blue-700 hover:underline">
+            <Link href="/" class="text-blue-700 dark:text-blue-400 hover:underline" aria-label="Back to Home">
                 &larr; Back to Home
             </Link>
         </div>

@@ -5,7 +5,7 @@ import { Link } from '@inertiajs/vue3'
 
 <template>
     <MyLayout>
-        <div class="max-w-2xl mx-auto p-6 bg-white rounded shadow text-gray-900">
+        <div class="max-w-2xl mx-auto p-6 bg-white dark:bg-[#222220] rounded shadow text-gray-900 dark:text-gray-100" role="main" aria-label="Cookie Policy">
             <h1 class="text-3xl font-bold mb-4">Cookie Policy</h1>
             <p class="mb-4">
                 FridgeGPT uses cookies to enhance your experience and ensure the proper functioning of our app. By using our service, you consent to our use of cookies as described in this policy.
@@ -25,7 +25,7 @@ import { Link } from '@inertiajs/vue3'
             <p class="mb-8">
                 If you have any questions about our cookie policy, please contact us.
             </p>
-            <Link href="/" class="text-blue-700 hover:underline">
+            <Link href="/" class="text-blue-700 dark:text-blue-400 hover:underline" aria-label="Back to Home">
                 &larr; Back to Home
             </Link>
         </div>

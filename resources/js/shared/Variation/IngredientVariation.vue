@@ -49,16 +49,16 @@ function handleModalClose(newIngredients?: Ingredient[]) {
 <template>
     <section id="edit-ingredients">
         <div class="mb-4 flex">
-            <h3 class="text-lg font-bold">Edit Ingredients</h3>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Edit Ingredients</h3>
             <button
-                class="ml-2 text-xs flex items-center rounded-full font-bold hover:cursor-pointer bg-blue-700 hover:bg-blue-700/90 px-4 py-1 text-white"
+                class="ml-2 text-xs flex items-center rounded-full font-bold hover:cursor-pointer bg-[#C27B5B] hover:bg-[#A8664A] px-4 py-1 text-white"
                 @click="showModal = true"
             >
                 Edit
             </button>
         </div>
         <div class="mb-4 flex flex-wrap gap-2">
-            <span v-for="(ing) in localIngredients" :key="ing.name" class="flex items-center rounded-full bg-gray-200 px-4 py-1 text-gray-700">
+            <span v-for="(ing) in localIngredients" :key="ing.name" class="flex items-center rounded-full bg-gray-200 dark:bg-gray-700 px-4 py-1 text-gray-700 dark:text-gray-200">
                 {{ ing.name }}
             </span>
         </div>

@@ -2,7 +2,7 @@
 import { router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import MyLayout from '../layouts/MyLayout.vue';
-import {route} from 'ziggy-js'
+import { route } from 'ziggy-js';
 
 const email = ref('');
 const password = ref('');
@@ -28,97 +28,87 @@ function loginWithFacebook() {
 
 <template>
     <MyLayout>
-        <main>
-            <section class="mx-auto my-10 max-w-md rounded bg-white p-8 text-gray-900 shadow" aria-labelledby="login-heading">
-                <h1 id="login-heading" class="mb-6 text-center text-3xl font-bold">Login</h1>
-                <form @submit.prevent="loginWithEmail" class="mb-8 flex flex-col gap-4" role="form" aria-describedby="login-desc">
-                    <span id="login-desc" class="sr-only">Log in to your account with your email and password.</span>
+        <main class="flex items-center justify-center min-h-[70vh] px-4 py-10">
+            <section class="w-full max-w-md rounded-2xl bg-white dark:bg-[#222220] p-8 shadow-sm border border-[#EDE5DD] dark:border-[#3D3D39]" aria-labelledby="login-heading">
+                <h1 id="login-heading" class="mb-6 text-center text-3xl font-bold font-serif text-[#3A2520] dark:text-[#E8E0D4]">Welcome back</h1>
+
+                <form @submit.prevent="loginWithEmail" class="flex flex-col gap-5" aria-label="Login form">
                     <div>
-                        <label for="email" class="mb-1 block font-medium text-gray-700">Email</label>
+                        <label for="email" class="mb-1.5 block text-sm font-medium text-[#3A2520] dark:text-[#C9B8A6]">Email</label>
                         <input
                             v-model="email"
                             id="email"
-                            name="email"
                             type="email"
-                            placeholder="Email"
+                            placeholder="you@example.com"
                             required
                             autocomplete="email"
-                            class="w-full rounded border px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                            class="w-full rounded-xl border border-[#EDE5DD] dark:border-[#3D3D39] bg-[#FBF5F0] dark:bg-[#2E2E2B] text-[#3A2520] dark:text-[#E8E0D4] placeholder-[#B0A196] px-4 py-3 text-sm focus:ring-2 focus:ring-[#C27B5B] focus:border-transparent focus:outline-none"
                             aria-required="true"
                         />
                     </div>
                     <div>
-                        <label for="password" class="mb-1 block font-medium text-gray-700">Password</label>
+                        <label for="password" class="mb-1.5 block text-sm font-medium text-[#3A2520] dark:text-[#C9B8A6]">Password</label>
                         <input
                             v-model="password"
                             id="password"
-                            name="password"
                             type="password"
-                            placeholder="Password"
+                            placeholder="Your password"
                             required
                             autocomplete="current-password"
-                            class="w-full rounded border px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                            class="w-full rounded-xl border border-[#EDE5DD] dark:border-[#3D3D39] bg-[#FBF5F0] dark:bg-[#2E2E2B] text-[#3A2520] dark:text-[#E8E0D4] placeholder-[#B0A196] px-4 py-3 text-sm focus:ring-2 focus:ring-[#C27B5B] focus:border-transparent focus:outline-none"
                             aria-required="true"
                         />
                     </div>
-                    <div class="flex items-center">
-                        <input
-                            type="checkbox"
-                            v-model="remember"
-                            id="remember"
-                            name="remember"
-                            class="mr-2 accent-teal-500 w-5 h-5 hover:cursor-pointer"
-                        />
-                        <label for="remember" class="text-gray-700 font-medium">Remember me</label>
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                v-model="remember"
+                                class="h-4 w-4 rounded border-[#EDE5DD] text-[#C27B5B] focus:ring-[#C27B5B]"
+                            />
+                            <span class="text-sm text-[#6B5C55] dark:text-[#C9B8A6]">Remember me</span>
+                        </label>
+                        <a :href="route('forgot-password.index')" class="text-sm text-[#C27B5B] hover:underline" aria-label="Forgot Password">
+                            Forgot password?
+                        </a>
                     </div>
+
+                    <p v-if="error" class="text-sm text-center text-red-600 dark:text-red-400" role="alert">{{ error }}</p>
 
                     <button
                         type="submit"
-                        class="rounded-xl hover:cursor-pointer bg-gradient-to-r from-teal-500 to-blue-500 px-4 py-2 text-lg font-bold text-white shadow transition hover:from-teal-600 hover:to-blue-600 focus:ring-2 focus:ring-blue-700 focus:outline-none"
-                        aria-label="Login with Email"
+                        class="w-full rounded-xl bg-[#C27B5B] hover:bg-[#A8664A] px-4 py-3 text-base font-semibold text-white transition focus:ring-2 focus:ring-[#C27B5B] focus:outline-none"
                     >
-                        Login with Email
+                        Sign In
                     </button>
-                    <p v-if="error" class="text-center text-red-600 mt-2">{{ error }}</p>
-                    <a :href="route('forgot-password.index')" class="text-blue-600 hover:cursor-pointer hover:text-blue-700 hover:underline">
-                        Forgot Password
-                    </a>
                 </form>
-                <p class="mb-6 text-center" id="social-login-desc">Or login using:</p>
-                <div class="flex flex-col gap-4" aria-labelledby="social-login-desc">
+
+                <div class="relative my-6">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-[#EDE5DD] dark:border-[#3D3D39]"></div></div>
+                    <div class="relative flex justify-center"><span class="bg-white dark:bg-[#222220] px-3 text-xs text-[#6B5C55] dark:text-[#C9B8A6]">or continue with</span></div>
+                </div>
+
+                <div class="flex flex-col gap-3">
                     <button
                         @click="loginWithGoogle"
-                        class="flex hover:cursor-pointer items-center justify-center gap-2 rounded border border-[#4285F4] bg-white px-4 py-2 font-bold text-[#4285F4] transition hover:bg-[#f1f3f4] focus:ring-2 focus:ring-[#4285F4] focus:outline-none"
-                        aria-label="Login with Google"
+                        class="flex items-center justify-center gap-2 w-full rounded-xl border border-[#EDE5DD] dark:border-[#3D3D39] bg-white dark:bg-[#2E2E2B] px-4 py-3 text-sm font-medium text-[#3A2520] dark:text-[#E8E0D4] transition hover:bg-[#FBF5F0] dark:hover:bg-[#3D3D39] focus:ring-2 focus:ring-[#C27B5B] focus:outline-none"
                     >
-                        <span aria-hidden="true">
-                            <svg width="20" height="20" viewBox="0 0 48 48">
-                                <g>
-                                    <path fill="#4285F4" d="M44.5 20H24v8.5h11.7C34.7 32.9 30.1 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.1 8.1 2.9l6.2-6.2C34.5 6.7 29.5 4.5 24 4.5 13.8 4.5 5.5 12.8 5.5 23S13.8 41.5 24 41.5c10.2 0 18.5-8.3 18.5-18.5 0-1.2-.1-2.3-.3-3.5z"/>
-                                    <path fill="#34A853" d="M6.3 14.7l7 5.1C15.3 17.1 19.3 14.5 24 14.5c3.1 0 5.9 1.1 8.1 2.9l6.2-6.2C34.5 6.7 29.5 4.5 24 4.5c-6.6 0-12 5.4-12 12 0 2.1.5 4.1 1.3 5.8z"/>
-                                    <path fill="#FBBC05" d="M24 41.5c5.1 0 9.7-1.7 13.3-4.7l-6.4-5.2c-2.1 1.4-4.8 2.2-7.9 2.2-6.1 0-11.3-4.1-13.1-9.6l-7 5.4C8.2 37.2 15.5 41.5 24 41.5z"/>
-                                    <path fill="#EA4335" d="M44.5 20H24v8.5h11.7c-1.1 3.1-4.1 5.5-7.7 5.5-6.1 0-11.3-4.1-13.1-9.6l-7 5.4C8.2 37.2 15.5 41.5 24 41.5c10.2 0 18.5-8.3 18.5-18.5 0-1.2-.1-2.3-.3-3.5z"/>
-                                </g>
-                            </svg>
-                        </span>
-                        <span class="sr-only">Login with Google</span>
-                        <span aria-hidden="true">Login with Google</span>
+                        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#4285F4" d="M44.5 20H24v8.5h11.7C34.7 32.9 30.1 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.1 8.1 2.9l6.2-6.2C34.5 6.7 29.5 4.5 24 4.5 13.8 4.5 5.5 12.8 5.5 23S13.8 41.5 24 41.5c10.2 0 18.5-8.3 18.5-18.5 0-1.2-.1-2.3-.3-3.5z"/><path fill="#34A853" d="M6.3 14.7l7 5.1C15.3 17.1 19.3 14.5 24 14.5c3.1 0 5.9 1.1 8.1 2.9l6.2-6.2C34.5 6.7 29.5 4.5 24 4.5c-6.6 0-12 5.4-12 12 0 2.1.5 4.1 1.3 5.8z"/><path fill="#FBBC05" d="M24 41.5c5.1 0 9.7-1.7 13.3-4.7l-6.4-5.2c-2.1 1.4-4.8 2.2-7.9 2.2-6.1 0-11.3-4.1-13.1-9.6l-7 5.4C8.2 37.2 15.5 41.5 24 41.5z"/><path fill="#EA4335" d="M44.5 20H24v8.5h11.7c-1.1 3.1-4.1 5.5-7.7 5.5-6.1 0-11.3-4.1-13.1-9.6l-7 5.4C8.2 37.2 15.5 41.5 24 41.5c10.2 0 18.5-8.3 18.5-18.5 0-1.2-.1-2.3-.3-3.5z"/></svg>
+                        Google
                     </button>
                     <button
                         @click="loginWithFacebook"
-                        class="flex hover:cursor-pointer items-center justify-center gap-2 rounded bg-[#1877F2] px-4 py-2 font-bold text-white transition hover:bg-[#145db2] focus:ring-2 focus:ring-[#1877F2] focus:outline-none"
-                        aria-label="Login with Facebook"
+                        class="flex items-center justify-center gap-2 w-full rounded-xl border border-[#EDE5DD] dark:border-[#3D3D39] bg-white dark:bg-[#2E2E2B] px-4 py-3 text-sm font-medium text-[#3A2520] dark:text-[#E8E0D4] transition hover:bg-[#FBF5F0] dark:hover:bg-[#3D3D39] focus:ring-2 focus:ring-[#C27B5B] focus:outline-none"
                     >
-                        <span aria-hidden="true">
-                            <svg width="20" height="20" viewBox="0 0 48 48">
-                                <path fill="#1877F2" d="M24 4C12.95 4 4 12.95 4 24c0 9.95 7.65 18.16 17.44 19.77V30.89h-5.25v-6.89h5.25v-5.25c0-5.19 3.16-8.03 7.78-8.03 2.21 0 4.09.16 4.64.24v5.38h-3.18c-2.5 0-2.98 1.19-2.98 2.93v3.73h6.01l-.78 6.89h-5.23v12.88C40.35 42.16 48 33.95 48 24c0-11.05-8.95-20-20-20z"/>
-                                <path fill="#FFF" d="M32.22 30.89l.78-6.89h-6.01v-3.73c0-1.74.48-2.93 2.98-2.93h3.18v-5.38c-.55-.08-2.43-.24-4.64-.24-4.62 0-7.78 2.84-7.78 8.03v5.25h-5.25v6.89h5.25v12.88c2.09.33 4.25.33 6.34 0V30.89h5.23z"/>
-                            </svg>
-                        </span>
-                        <span class="sr-only">Login with Facebook</span>
-                        <span aria-hidden="true">Login with Facebook</span>
+                        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#1877F2" d="M24 4C12.95 4 4 12.95 4 24c0 9.95 7.65 18.16 17.44 19.77V30.89h-5.25v-6.89h5.25v-5.25c0-5.19 3.16-8.03 7.78-8.03 2.21 0 4.09.16 4.64.24v5.38h-3.18c-2.5 0-2.98 1.19-2.98 2.93v3.73h6.01l-.78 6.89h-5.23v12.88C40.35 42.16 48 33.95 48 24c0-11.05-8.95-20-20-20z"/></svg>
+                        Facebook
                     </button>
                 </div>
+
+                <p class="mt-6 text-center text-sm text-[#6B5C55] dark:text-[#C9B8A6]">
+                    Don't have an account?
+                    <a href="/signup" class="font-medium text-[#C27B5B] hover:underline">Sign up</a>
+                </p>
             </section>
         </main>
     </MyLayout>

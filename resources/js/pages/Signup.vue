@@ -22,116 +22,91 @@ function signUpWithFacebook() {
 
 <template>
     <MyLayout>
-        <main>
-            <section class="mx-auto mt-10 max-w-md rounded bg-white p-8 text-gray-900 shadow" aria-labelledby="signup-heading">
-                <h1 id="signup-heading" class="mb-6 text-center text-3xl font-bold">Sign Up</h1>
-                <form @submit.prevent="signUpWithEmail" class="mb-8 flex flex-col gap-4" role="form" aria-describedby="signup-desc">
-                    <span id="signup-desc" class="sr-only"> Create an account by filling out your name, email, and password. </span>
+        <main class="flex items-center justify-center min-h-[70vh] px-4 py-10">
+            <section class="w-full max-w-md rounded-2xl bg-white dark:bg-[#222220] p-8 shadow-sm border border-[#EDE5DD] dark:border-[#3D3D39]" aria-labelledby="signup-heading">
+                <h1 id="signup-heading" class="mb-6 text-center text-3xl font-bold font-serif text-[#3A2520] dark:text-[#E8E0D4]">Create your account</h1>
+
+                <form @submit.prevent="signUpWithEmail" class="flex flex-col gap-5" aria-label="Sign up form">
+                    <span id="signup-desc" class="sr-only">Create an account by filling out your name, email, and password.</span>
                     <div>
-                        <label for="name" class="mb-1 block font-medium text-gray-700">Name</label>
+                        <label for="name" class="mb-1.5 block text-sm font-medium text-[#3A2520] dark:text-[#C9B8A6]">Name</label>
                         <input
                             v-model="name"
                             id="name"
                             name="name"
                             type="text"
-                            placeholder="Name"
+                            placeholder="Your name"
                             required
                             autocomplete="name"
-                            class="w-full rounded border px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                            class="w-full rounded-xl border border-[#EDE5DD] dark:border-[#3D3D39] bg-[#FBF5F0] dark:bg-[#2E2E2B] text-[#3A2520] dark:text-[#E8E0D4] placeholder-[#B0A196] px-4 py-3 text-sm focus:ring-2 focus:ring-[#C27B5B] focus:border-transparent focus:outline-none"
                             aria-required="true"
                         />
                     </div>
                     <div>
-                        <label for="email" class="mb-1 block font-medium text-gray-700">Email</label>
+                        <label for="email" class="mb-1.5 block text-sm font-medium text-[#3A2520] dark:text-[#C9B8A6]">Email</label>
                         <input
                             v-model="email"
                             id="email"
                             name="email"
                             type="email"
-                            placeholder="Email"
+                            placeholder="you@example.com"
                             required
                             autocomplete="email"
-                            class="w-full rounded border px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                            class="w-full rounded-xl border border-[#EDE5DD] dark:border-[#3D3D39] bg-[#FBF5F0] dark:bg-[#2E2E2B] text-[#3A2520] dark:text-[#E8E0D4] placeholder-[#B0A196] px-4 py-3 text-sm focus:ring-2 focus:ring-[#C27B5B] focus:border-transparent focus:outline-none"
                             aria-required="true"
                         />
                     </div>
                     <div>
-                        <label for="password" class="mb-1 block font-medium text-gray-700">Password</label>
+                        <label for="password" class="mb-1.5 block text-sm font-medium text-[#3A2520] dark:text-[#C9B8A6]">Password</label>
                         <input
                             v-model="password"
                             id="password"
                             name="password"
                             type="password"
-                            placeholder="Password"
+                            placeholder="Create a password"
                             required
                             autocomplete="new-password"
-                            class="w-full rounded border px-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                            class="w-full rounded-xl border border-[#EDE5DD] dark:border-[#3D3D39] bg-[#FBF5F0] dark:bg-[#2E2E2B] text-[#3A2520] dark:text-[#E8E0D4] placeholder-[#B0A196] px-4 py-3 text-sm focus:ring-2 focus:ring-[#C27B5B] focus:border-transparent focus:outline-none"
                             aria-required="true"
                         />
                     </div>
+
                     <button
                         type="submit"
-                        class="rounded-xl hover:cursor-pointer bg-gradient-to-r from-teal-500 to-blue-500 px-4 py-2 text-lg font-bold text-white shadow transition hover:from-teal-600 hover:to-blue-600 focus:ring-2 focus:ring-blue-700 focus:outline-none"
-                        aria-label="Sign up with Email"
+                        class="w-full rounded-xl bg-[#C27B5B] hover:bg-[#A8664A] px-4 py-3 text-base font-semibold text-white transition focus:ring-2 focus:ring-[#C27B5B] focus:outline-none"
                     >
-                        Sign up with Email
+                        Create Account
                     </button>
                 </form>
-                <p class="mb-6 text-center" id="social-signup-desc">Or sign up using:</p>
-                <div class="flex flex-col gap-4" aria-labelledby="social-signup-desc">
+
+                <div class="relative my-6">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-[#EDE5DD] dark:border-[#3D3D39]"></div></div>
+                    <div class="relative flex justify-center"><span class="bg-white dark:bg-[#222220] px-3 text-xs text-[#6B5C55] dark:text-[#C9B8A6]">or continue with</span></div>
+                </div>
+
+                <div class="flex flex-col gap-3">
                     <button
                         @click="signUpWithGoogle"
-                        class="flex hover:cursor-pointer items-center justify-center gap-2 rounded border border-[#4285F4] bg-white px-4 py-2 font-bold text-[#4285F4] transition hover:bg-[#f1f3f4] focus:ring-2 focus:ring-[#4285F4] focus:outline-none"
+                        class="flex items-center justify-center gap-2 w-full rounded-xl border border-[#EDE5DD] dark:border-[#3D3D39] bg-white dark:bg-[#2E2E2B] px-4 py-3 text-sm font-medium text-[#3A2520] dark:text-[#E8E0D4] transition hover:bg-[#FBF5F0] dark:hover:bg-[#3D3D39] focus:ring-2 focus:ring-[#C27B5B] focus:outline-none"
                         aria-label="Sign up with Google"
                     >
-                        <span aria-hidden="true">
-                            <!-- Google SVG icon -->
-                            <svg width="20" height="20" viewBox="0 0 48 48">
-                                <g>
-                                    <path
-                                        fill="#4285F4"
-                                        d="M44.5 20H24v8.5h11.7C34.7 32.9 30.1 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.1 8.1 2.9l6.2-6.2C34.5 6.7 29.5 4.5 24 4.5 13.8 4.5 5.5 12.8 5.5 23S13.8 41.5 24 41.5c10.2 0 18.5-8.3 18.5-18.5 0-1.2-.1-2.3-.3-3.5z"
-                                    />
-                                    <path
-                                        fill="#34A853"
-                                        d="M6.3 14.7l7 5.1C15.3 17.1 19.3 14.5 24 14.5c3.1 0 5.9 1.1 8.1 2.9l6.2-6.2C34.5 6.7 29.5 4.5 24 4.5c-6.6 0-12 5.4-12 12 0 2.1.5 4.1 1.3 5.8z"
-                                    />
-                                    <path
-                                        fill="#FBBC05"
-                                        d="M24 41.5c5.1 0 9.7-1.7 13.3-4.7l-6.4-5.2c-2.1 1.4-4.8 2.2-7.9 2.2-6.1 0-11.3-4.1-13.1-9.6l-7 5.4C8.2 37.2 15.5 41.5 24 41.5z"
-                                    />
-                                    <path
-                                        fill="#EA4335"
-                                        d="M44.5 20H24v8.5h11.7c-1.1 3.1-4.1 5.5-7.7 5.5-6.1 0-11.3-4.1-13.1-9.6l-7 5.4C8.2 37.2 15.5 41.5 24 41.5c10.2 0 18.5-8.3 18.5-18.5 0-1.2-.1-2.3-.3-3.5z"
-                                    />
-                                </g>
-                            </svg>
-                        </span>
-                        <span class="sr-only">Sign up with Google</span>
-                        <span aria-hidden="true">Sign up with Google</span>
+                        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#4285F4" d="M44.5 20H24v8.5h11.7C34.7 32.9 30.1 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.1 8.1 2.9l6.2-6.2C34.5 6.7 29.5 4.5 24 4.5 13.8 4.5 5.5 12.8 5.5 23S13.8 41.5 24 41.5c10.2 0 18.5-8.3 18.5-18.5 0-1.2-.1-2.3-.3-3.5z"/><path fill="#34A853" d="M6.3 14.7l7 5.1C15.3 17.1 19.3 14.5 24 14.5c3.1 0 5.9 1.1 8.1 2.9l6.2-6.2C34.5 6.7 29.5 4.5 24 4.5c-6.6 0-12 5.4-12 12 0 2.1.5 4.1 1.3 5.8z"/><path fill="#FBBC05" d="M24 41.5c5.1 0 9.7-1.7 13.3-4.7l-6.4-5.2c-2.1 1.4-4.8 2.2-7.9 2.2-6.1 0-11.3-4.1-13.1-9.6l-7 5.4C8.2 37.2 15.5 41.5 24 41.5z"/><path fill="#EA4335" d="M44.5 20H24v8.5h11.7c-1.1 3.1-4.1 5.5-7.7 5.5-6.1 0-11.3-4.1-13.1-9.6l-7 5.4C8.2 37.2 15.5 41.5 24 41.5c10.2 0 18.5-8.3 18.5-18.5 0-1.2-.1-2.3-.3-3.5z"/></svg>
+                        Google
                     </button>
                     <button
                         @click="signUpWithFacebook"
-                        class="flex hover:cursor-pointer items-center justify-center gap-2 rounded bg-[#1877F2] px-4 py-2 font-bold text-white transition hover:bg-[#145db2] focus:ring-2 focus:ring-[#1877F2] focus:outline-none"
+                        class="flex items-center justify-center gap-2 w-full rounded-xl border border-[#EDE5DD] dark:border-[#3D3D39] bg-white dark:bg-[#2E2E2B] px-4 py-3 text-sm font-medium text-[#3A2520] dark:text-[#E8E0D4] transition hover:bg-[#FBF5F0] dark:hover:bg-[#3D3D39] focus:ring-2 focus:ring-[#C27B5B] focus:outline-none"
                         aria-label="Sign up with Facebook"
                     >
-                        <span aria-hidden="true">
-                            <!-- Facebook SVG icon -->
-                            <svg width="20" height="20" viewBox="0 0 48 48">
-                                <path
-                                    fill="#1877F2"
-                                    d="M24 4C12.95 4 4 12.95 4 24c0 9.95 7.65 18.16 17.44 19.77V30.89h-5.25v-6.89h5.25v-5.25c0-5.19 3.16-8.03 7.78-8.03 2.21 0 4.09.16 4.64.24v5.38h-3.18c-2.5 0-2.98 1.19-2.98 2.93v3.73h6.01l-.78 6.89h-5.23v12.88C40.35 42.16 48 33.95 48 24c0-11.05-8.95-20-20-20z"
-                                />
-                                <path
-                                    fill="#FFF"
-                                    d="M32.22 30.89l.78-6.89h-6.01v-3.73c0-1.74.48-2.93 2.98-2.93h3.18v-5.38c-.55-.08-2.43-.24-4.64-.24-4.62 0-7.78 2.84-7.78 8.03v5.25h-5.25v6.89h5.25v12.88c2.09.33 4.25.33 6.34 0V30.89h5.23z"
-                                />
-                            </svg>
-                        </span>
-                        <span class="sr-only">Sign up with Facebook</span>
-                        <span aria-hidden="true">Sign up with Facebook</span>
+                        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#1877F2" d="M24 4C12.95 4 4 12.95 4 24c0 9.95 7.65 18.16 17.44 19.77V30.89h-5.25v-6.89h5.25v-5.25c0-5.19 3.16-8.03 7.78-8.03 2.21 0 4.09.16 4.64.24v5.38h-3.18c-2.5 0-2.98 1.19-2.98 2.93v3.73h6.01l-.78 6.89h-5.23v12.88C40.35 42.16 48 33.95 48 24c0-11.05-8.95-20-20-20z"/></svg>
+                        Facebook
                     </button>
                 </div>
+
+                <p class="mt-6 text-center text-sm text-[#6B5C55] dark:text-[#C9B8A6]">
+                    Already have an account?
+                    <a href="/login" class="font-medium text-[#C27B5B] hover:underline">Sign in</a>
+                </p>
             </section>
         </main>
     </MyLayout>

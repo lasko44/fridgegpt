@@ -27,7 +27,7 @@ const groupClass = computed(() =>
 
 <template>
     <section>
-        <h3 class="mb-4 text-lg font-bold">{{ label }}</h3>
+        <h3 class="mb-4 text-lg font-bold text-gray-900 dark:text-white">{{ label }}</h3>
         <div :class="groupClass">
             <label
                 v-for="option in options"
@@ -49,12 +49,12 @@ const groupClass = computed(() =>
                     class="sr-only peer"
                 />
                 <span
-                    class="w-11 h-6 bg-gray-300 rounded-full transition-colors relative
-          peer-checked:bg-gradient-to-r peer-checked:from-teal-500 peer-checked:via-cyan-500 peer-checked:to-blue-500
+                    class="w-11 h-6 bg-gray-300 dark:bg-gray-600 rounded-full transition-colors relative
+          peer-checked:bg-[#C27B5B]
           after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full
           after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"
                 ></span>
-                <span>{{ option }}</span>
+                <span class="text-gray-800 dark:text-gray-200">{{ option }}</span>
             </label>
         </div>
     </section>

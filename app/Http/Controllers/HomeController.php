@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Facades\RecipeUtil;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -11,19 +10,25 @@ class HomeController extends Controller
 {
     public function index(): Response
     {
-        //get the timezone from the browser
         $timezone = request()->query('timezone');
 
-        Cache::put('user_timezone', $timezone, 60 * 24); // Store for 24 hours
+        if ($timezone && in_array($timezone, \DateTimeZone::listIdentifiers())) {
+            Cache::put('user_timezone', $timezone, 60 * 24);
+        }
+
         $user = auth()->user();
 
-        $recipes = !$user ? session('recipe') :
-            ($user->is_subscribed ? RecipeUtil::getPremiumRecipes($user)
-                : RecipeUtil::getStandardRecipes($user));
+        // All authenticated users see their recipes paginated
+        $recipes = $user
+            ? $user->recipe()->with('ingredients')->latest()->paginate(10)
+            : null;
 
         return Inertia::render('Home', [
             'recipe' => session('recipe'),
+            'structured' => session('structured'),
             'recipes' => $recipes,
+            'tokenBalance' => $user?->token_balance ?? 0,
+            'tokenCost' => config('tokens.costs.recipe', 1),
         ]);
     }
 }

@@ -58,7 +58,7 @@ const updatePassword = () => {
             <div class="space-y-6">
                 <HeadingSmall title="Update password" description="Ensure your account is using a long, random password to stay secure" />
 
-                <form @submit.prevent="updatePassword" class="space-y-6">
+                <form @submit.prevent="updatePassword" class="space-y-6" aria-label="Update password">
                     <div class="grid gap-2">
                         <Label for="current_password">Current password</Label>
                         <Input
@@ -109,7 +109,7 @@ const updatePassword = () => {
                             leave-active-class="transition ease-in-out"
                             leave-to-class="opacity-0"
                         >
-                            <p v-show="form.recentlySuccessful" class="text-sm text-neutral-600">Saved.</p>
+                            <p v-show="form.recentlySuccessful" class="text-sm text-neutral-600 dark:text-neutral-400">Saved.</p>
                         </Transition>
                     </div>
                 </form>

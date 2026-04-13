@@ -2,10 +2,11 @@
 import { useHead } from '@vueuse/head';
 import MyLayout from '@/layouts/MyLayout.vue';
 import { usePage, router } from '@inertiajs/vue3';
-import { computed, provide, ref } from 'vue';
+import { computed, provide, ref, Teleport, Transition } from 'vue';
 import axios from 'axios';
 import VariationMenu from '@/shared/Variation/VariationMenu.vue';
 import NutritionCard from '@/shared/Nutrition/NutritionCard.vue';
+import ConfirmDialog from '@/shared/ConfirmDialog.vue';
 import { Recipe } from '@/interfaces/recipe';
 import { User } from '@/interfaces/user';
 
@@ -79,7 +80,59 @@ const parsed = computed(() => {
     return { title: title || recipe.name, description, prepTime, cookTime, servings, ingredients, instructions };
 });
 
+// Cooking mode
+const cookingMode = ref(false);
+const cookingStep = ref(0);
+
+// Find ingredients mentioned in a step's text
+function findIngredientsForStep(stepText: string): string[] {
+    const lower = stepText.toLowerCase();
+    return parsed.value.ingredients.filter((ing) => {
+        const name = ing.toLowerCase().replace(/^[\d./\s]+(?:cup|tbsp|tsp|oz|lb|g|ml|clove|piece|can|bunch|head|stalk)s?\s+(?:of\s+)?/i, '');
+        if (lower.includes(name)) return true;
+        const words = name.split(/\s+/).filter((w) => w.length >= 3);
+        return words.some((w) => lower.includes(w));
+    });
+}
+
+const cookingStepData = computed(() => {
+    const step = parsed.value.instructions[cookingStep.value];
+    if (!step) return null;
+    return {
+        ...step,
+        ingredients: findIngredientsForStep(step.text),
+    };
+});
+
+const cookingProgress = computed(() =>
+    parsed.value.instructions.length > 0
+        ? ((cookingStep.value + 1) / parsed.value.instructions.length) * 100
+        : 0
+);
+const cookingDone = computed(() => cookingStep.value >= parsed.value.instructions.length);
+
+function startCooking() {
+    cookingStep.value = 0;
+    cookingMode.value = true;
+}
+function nextCookingStep() {
+    if (cookingStep.value < parsed.value.instructions.length - 1) cookingStep.value++;
+    else cookingStep.value = parsed.value.instructions.length; // done
+}
+function prevCookingStep() {
+    if (cookingStep.value > 0) cookingStep.value--;
+}
+
 const checkedIngredients = ref<Set<number>>(new Set());
+const showDeleteConfirm = ref(false);
+
+function deleteRecipe() {
+    router.delete(`/recipe/${recipe.slug}`, {
+        onSuccess: () => {
+            showDeleteConfirm.value = false;
+        },
+    });
+}
 function toggleIngredient(idx: number) {
     const copy = new Set(checkedIngredients.value);
     copy.has(idx) ? copy.delete(idx) : copy.add(idx);
@@ -175,14 +228,14 @@ const scaledNutrition = computed(() => {
                 <div v-if="recipe.is_variation && recipe.parent_recipe" class="mb-3 inline-flex items-center gap-2 rounded-full bg-[#C27B5B]/10 dark:bg-white/10 px-4 py-1.5 text-sm font-medium">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                     Variation of
-                    <a :href="route('recipe.show', { recipe: recipe.parent_recipe.slug })" class="underline hover:text-white/80">{{ recipe.parent_recipe.name }}</a>
+                    <a :href="`/recipe/${recipe.parent_recipe.slug}`" class="underline hover:text-white/80">{{ recipe.parent_recipe.name }}</a>
                 </div>
 
                 <p class="text-sm text-[#6B5C55] dark:text-[#C9B8A6] mb-2">
                     {{ user?.name || 'Guest' }} &middot; {{ createdAtMessage }}
                 </p>
                 <h1 class="text-3xl md:text-4xl font-bold tracking-tight mb-3">{{ parsed.title }}</h1>
-                <p v-if="parsed.description" class="text-gray-300 text-base md:text-lg leading-relaxed max-w-2xl">
+                <p v-if="parsed.description" class="text-[#6B5C55] dark:text-[#C9B8A6] text-base md:text-lg leading-relaxed max-w-2xl">
                     {{ parsed.description }}
                 </p>
                 <!-- Meta badges + servings adjuster -->
@@ -243,7 +296,94 @@ const scaledNutrition = computed(() => {
             </div>
         </div>
 
+        <!-- Cooking Mode Overlay -->
+        <Teleport to="body">
+            <Transition name="slide-up">
+                <div v-if="cookingMode" class="fixed inset-0 z-50 bg-[#FBF5F0] dark:bg-[#1A1A18] flex flex-col">
+                    <!-- Header -->
+                    <div class="flex items-center px-4 py-3 border-b border-[#EDE5DD] dark:border-[#3D3D39]">
+                        <button @click="cookingMode = false" class="p-2 rounded-full hover:bg-[#EDE5DD] dark:hover:bg-[#3D3D39] transition" aria-label="Exit cooking mode">
+                            <svg class="h-5 w-5 text-[#3A2520] dark:text-[#F3EDE6]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                        <div class="flex-1 text-center">
+                            <p class="text-sm font-semibold text-[#3A2520] dark:text-[#F3EDE6] truncate">{{ parsed.title }}</p>
+                            <p v-if="!cookingDone" class="text-xs text-[#6B5C55] dark:text-[#C9B8A6]">Step {{ cookingStep + 1 }} of {{ parsed.instructions.length }}</p>
+                        </div>
+                        <div class="w-9"></div>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div class="h-1 bg-[#EDE5DD] dark:bg-[#3D3D39]">
+                        <div class="h-1 bg-[#C27B5B] transition-all duration-300" :style="{ width: cookingProgress + '%' }"></div>
+                    </div>
+
+                    <!-- Done state -->
+                    <div v-if="cookingDone" class="flex-1 flex flex-col items-center justify-center gap-4 px-8">
+                        <div class="w-28 h-28 rounded-full bg-[#C27B5B]/10 flex items-center justify-center">
+                            <svg class="h-12 w-12 text-[#C27B5B]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        </div>
+                        <h2 class="text-3xl font-bold text-[#3A2520] dark:text-[#F3EDE6]">All done!</h2>
+                        <p class="text-[#6B5C55] dark:text-[#C9B8A6]">Enjoy your meal</p>
+                        <button @click="cookingMode = false" class="mt-4 px-8 py-3 rounded-full bg-[#C27B5B] text-white font-semibold hover:bg-[#A8664A] transition">
+                            Exit Cooking Mode
+                        </button>
+                    </div>
+
+                    <!-- Step content -->
+                    <div v-else class="flex-1 overflow-y-auto">
+                        <div class="max-w-2xl mx-auto px-6 py-8 space-y-6">
+                            <span class="inline-block px-4 py-1.5 rounded-full bg-[#C27B5B] text-white text-sm font-bold">
+                                Step {{ cookingStepData?.step }}
+                            </span>
+
+                            <p class="text-xl leading-relaxed text-[#3A2520] dark:text-[#F3EDE6]">
+                                {{ cookingStepData?.text }}
+                            </p>
+
+                            <!-- Ingredients for this step -->
+                            <div v-if="cookingStepData?.ingredients.length" class="rounded-xl border border-[#EDE5DD] dark:border-[#3D3D39] bg-white/50 dark:bg-[#2E2E2B] p-5 space-y-3">
+                                <p class="text-xs font-bold uppercase tracking-wider text-[#6B5C55] dark:text-[#C9B8A6]">You'll need</p>
+                                <div v-for="(ing, idx) in cookingStepData.ingredients" :key="idx" class="flex items-center gap-3">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#C27B5B]"></span>
+                                    <span class="text-sm font-medium text-[#3A2520] dark:text-[#F3EDE6]">{{ scaleAmount(ing) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <div v-if="!cookingDone" class="flex items-center gap-3 px-6 py-4 border-t border-[#EDE5DD] dark:border-[#3D3D39]">
+                        <button
+                            @click="prevCookingStep"
+                            :disabled="cookingStep === 0"
+                            class="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full border border-[#EDE5DD] dark:border-[#3D3D39] text-[#6B5C55] dark:text-[#C9B8A6] font-semibold transition hover:bg-[#EDE5DD] dark:hover:bg-[#3D3D39] disabled:opacity-30"
+                        >
+                            &larr; Back
+                        </button>
+                        <button
+                            @click="nextCookingStep"
+                            class="flex-[2] flex items-center justify-center gap-2 py-3.5 rounded-full bg-[#C27B5B] text-white font-semibold hover:bg-[#A8664A] transition"
+                        >
+                            {{ cookingStep === parsed.instructions.length - 1 ? 'Finish' : 'Next Step' }}
+                            <span v-if="cookingStep < parsed.instructions.length - 1">&rarr;</span>
+                            <svg v-else class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </Transition>
+        </Teleport>
+
         <div class="mx-auto max-w-5xl px-4 py-8 space-y-6">
+
+            <!-- Start Cooking button -->
+            <button
+                v-if="parsed.instructions.length > 0"
+                @click="startCooking"
+                class="w-full flex items-center justify-center gap-3 py-4 rounded-xl bg-[#C27B5B] text-white text-lg font-bold hover:bg-[#A8664A] transition shadow-sm"
+            >
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48z"/></svg>
+                Start Cooking
+            </button>
 
             <!-- Nutrition Facts (scales with servings) -->
             <NutritionCard
@@ -379,6 +519,40 @@ const scaledNutrition = computed(() => {
             >
                 <pre class="whitespace-pre-wrap text-sm text-[#3A2520] dark:text-[#F3EDE6] leading-relaxed">{{ recipe.description }}</pre>
             </section>
+
+            <!-- Delete recipe -->
+            <div v-if="user" class="pt-4 border-t border-[#EDE5DD] dark:border-[#3D3D39] mt-8">
+                <button
+                    type="button"
+                    @click="showDeleteConfirm = true"
+                    class="text-sm text-red-600 hover:text-red-700 hover:underline transition"
+                >
+                    Delete this recipe
+                </button>
+            </div>
+
+            <ConfirmDialog
+                :open="showDeleteConfirm"
+                title="Delete recipe?"
+                :message="`${recipe.name} will be archived.`"
+                confirm-label="Delete"
+                variant="danger"
+                @confirm="deleteRecipe"
+                @cancel="showDeleteConfirm = false"
+            />
         </div>
     </MyLayout>
 </template>
+
+<style scoped>
+.slide-up-enter-active,
+.slide-up-leave-active {
+    transition: transform 0.3s ease;
+}
+.slide-up-enter-from {
+    transform: translateY(100%);
+}
+.slide-up-leave-to {
+    transform: translateY(100%);
+}
+</style>

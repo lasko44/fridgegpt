@@ -39,6 +39,11 @@ class Recipe extends Model
         return $this->hasMany(Ingredient::class);
     }
 
+    public function mealPlanSlots(): HasMany
+    {
+        return $this->hasMany(MealPlanSlot::class);
+    }
+
     public function recipeRestriction (): HasMany
     {
         return $this->hasMany(RecipeRestriction::class);

@@ -4,7 +4,6 @@ import { computed } from 'vue';
 
 const props = defineProps<{ recipe: Recipe }>();
 
-// Pick a simple letter icon based on the first ingredient keyword
 const iconLetter = computed(() => {
     const name = props.recipe.name.toLowerCase();
     const map: [string[], string][] = [
@@ -25,24 +24,37 @@ const iconLetter = computed(() => {
     for (const [keywords, letter] of map) {
         if (keywords.some(k => name.includes(k))) return letter;
     }
-    // Fallback: first letter of recipe name
     return props.recipe.name.charAt(0).toUpperCase();
+});
+
+const formattedDate = computed(() => {
+    const date = new Date(props.recipe.created_at);
+    const now = new Date();
+    const today = now.toDateString();
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    const dateStr = date.toDateString();
+
+    if (dateStr === today) return 'Today';
+    if (dateStr === yesterday) return 'Yesterday';
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 });
 </script>
 
 <template>
-    <a :href="route('recipe.show', { recipe: recipe.slug })" class="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C27B5B] rounded-2xl" :aria-label="'View recipe: ' + recipe.name">
-        <article class="flex items-center space-x-4 rounded-2xl bg-white dark:bg-[#222220] p-5 transition-all hover:shadow-md hover:translate-y-[-1px]">
+    <a :href="`/recipe/${recipe.slug}`" class="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C27B5B] rounded-2xl" :aria-label="'View recipe: ' + recipe.name">
+        <article class="flex items-center gap-4 rounded-2xl bg-white dark:bg-[#222220] border border-[#EDE5DD] dark:border-[#3D3D39] p-5 transition-all hover:border-[#C27B5B] hover:shadow-sm">
             <div class="h-12 w-12 rounded-xl bg-[#FBF5F0] dark:bg-[#2E2E2B] flex items-center justify-center flex-shrink-0" aria-hidden="true">
                 <span class="text-lg font-bold font-serif text-[#C27B5B] dark:text-[#D4967E]">{{ iconLetter }}</span>
             </div>
             <div class="min-w-0 flex-1">
-                <h3 class="truncate text-base font-medium text-[#3A2520] dark:text-[#E8E0D4] group-hover:underline">
+                <h3 class="truncate text-base font-medium text-[#3A2520] dark:text-[#E8E0D4]">
                     {{ recipe.name }}
                 </h3>
-                <div class="flex items-center gap-2 mt-0.5">
-                    <span v-if="recipe.is_variation" class="text-xs px-2 py-0.5 rounded-full bg-[#FBF5F0] dark:bg-[#2E2E2B] text-[#C27B5B] dark:text-[#D4967E]">Variation</span>
-                    <time :datetime="recipe.created_at" class="text-xs text-[#6B5C55] dark:text-[#C9B8A6]">{{ recipe.created_at }}</time>
+                <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
+                    <span v-if="recipe.is_variation" class="text-[10px] px-2 py-0.5 rounded-full bg-[#FBF5F0] dark:bg-[#2E2E2B] text-[#C27B5B] dark:text-[#D4967E] font-medium">Variation</span>
+                    <span v-if="recipe.calories_per_serving" class="text-xs text-[#6B5C55] dark:text-[#C9B8A6]">{{ Math.round(recipe.calories_per_serving) }} cal</span>
+                    <span v-if="recipe.calories_per_serving" class="text-xs text-[#C9B8A6] dark:text-[#6B5C55]" aria-hidden="true">&middot;</span>
+                    <time :datetime="recipe.created_at" class="text-xs text-[#6B5C55] dark:text-[#C9B8A6]">{{ formattedDate }}</time>
                 </div>
             </div>
             <svg class="h-4 w-4 text-[#C9B8A6] dark:text-[#6B5C55] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">

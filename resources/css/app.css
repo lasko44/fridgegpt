@@ -194,4 +194,24 @@ h1, h2, h3, h4, h5, h6 {
     body {
         @apply bg-background text-foreground;
     }
+
+    /* Pointer cursor on all interactive elements */
+    button:not(:disabled),
+    a,
+    [role="button"]:not([aria-disabled="true"]),
+    [role="link"],
+    [role="checkbox"],
+    [role="radio"],
+    [role="tab"],
+    [role="menuitem"],
+    label[for],
+    summary,
+    select {
+        cursor: pointer;
+    }
+
+    button:disabled,
+    [aria-disabled="true"] {
+        cursor: not-allowed;
+    }
 }

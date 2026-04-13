@@ -449,7 +449,7 @@ function submitForm() {
                     <p class="text-[#6B5C55] dark:text-[#C9B8A6] font-medium">
                         Out of tokens &mdash;
                         <a
-                            :href="route('tokens.index')"
+                            href="/tokens"
                             class="text-[#C27B5B] hover:underline font-semibold"
                             aria-label="Buy more tokens"
                         >
@@ -532,7 +532,7 @@ function submitForm() {
 
                 <!-- View Full Recipe link -->
                 <a
-                    :href="route('recipe.show', { recipe: result.slug })"
+                    :href="`/recipe/${result.slug}`"
                     class="inline-flex items-center gap-2 text-[#C27B5B] hover:text-[#A8664A] font-semibold text-sm transition"
                     aria-label="View the full recipe page"
                 >

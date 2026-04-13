@@ -40,7 +40,7 @@ function handleConfirm() {
             <p>You are not currently subscribed to a plan.</p>
             <a
                 class="mt-4 inline-block rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                :href="route('subscription.create')">
+                href="/tokens">
                 Subscribe Now
             </a>
         </div>

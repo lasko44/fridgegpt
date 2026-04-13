@@ -13,6 +13,7 @@ interface Recipe {
     image_url: string;
     created_at: string;
     is_variation: boolean;
+    calories_per_serving: number | null;
     ingredients: { name: string }[];
 }
 
@@ -131,7 +132,7 @@ const groupedRecipes = computed(() => {
                     </p>
                 </div>
                 <Link
-                    href="/"
+                    href="/create"
                     class="rounded-full bg-[#C27B5B] hover:bg-[#A8664A] px-5 py-2.5 text-sm font-semibold text-white transition focus:outline-none focus:ring-2 focus:ring-[#C27B5B]"
                     aria-label="Create a new recipe"
                 >
@@ -234,7 +235,7 @@ const groupedRecipes = computed(() => {
                 <h2 class="text-xl font-serif font-bold text-[#3A2520] dark:text-[#E8E0D4] mb-2">No recipes yet</h2>
                 <p class="text-[#6B5C55] dark:text-[#C9B8A6] mb-6">Generate your first recipe to get started.</p>
                 <Link
-                    href="/"
+                    href="/create"
                     class="inline-block rounded-full bg-[#C27B5B] hover:bg-[#A8664A] px-6 py-3 text-white font-semibold transition"
                 >
                     Create a Recipe

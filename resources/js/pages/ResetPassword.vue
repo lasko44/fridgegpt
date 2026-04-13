@@ -108,7 +108,7 @@ function submit() {
 
                     <p v-if="error" class="mt-2 text-center text-red-600">{{ error }}</p>
 
-                    <a :href="route('login')" class="text-blue-600 dark:text-blue-400 hover:cursor-pointer hover:text-blue-700 dark:hover:text-blue-300 hover:underline" aria-label="Back to Login"> Back to Login </a>
+                    <a href="/login" class="text-blue-600 dark:text-blue-400 hover:cursor-pointer hover:text-blue-700 dark:hover:text-blue-300 hover:underline" aria-label="Back to Login"> Back to Login </a>
                 </form>
             </section>
         </main>

@@ -34,6 +34,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'token_balance' => 'integer',
+            'is_admin' => 'boolean',
         ];
     }
 
@@ -65,6 +66,16 @@ class User extends Authenticatable
     public function tokenTransactions(): HasMany
     {
         return $this->hasMany(TokenTransaction::class);
+    }
+
+    public function mealPlans(): HasMany
+    {
+        return $this->hasMany(MealPlan::class);
+    }
+
+    public function supportConversations(): HasMany
+    {
+        return $this->hasMany(SupportConversation::class);
     }
 
     // Helpers

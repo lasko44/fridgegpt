@@ -68,7 +68,7 @@ function loginWithFacebook() {
                             />
                             <span class="text-sm text-[#6B5C55] dark:text-[#C9B8A6]">Remember me</span>
                         </label>
-                        <a :href="route('forgot-password.index')" class="text-sm text-[#C27B5B] hover:underline" aria-label="Forgot Password">
+                        <a href="/forgot-password" class="text-sm text-[#C27B5B] hover:underline" aria-label="Forgot Password">
                             Forgot password?
                         </a>
                     </div>

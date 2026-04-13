@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Ssr\TimeoutHttpGateway;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
+use Inertia\Ssr\Gateway;
 use Laravel\Cashier\Cashier;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(Gateway::class, TimeoutHttpGateway::class);
     }
 
     /**
